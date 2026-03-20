@@ -1,0 +1,5 @@
+robocopy "D:\APPs\envpostcard_everyday" "D:\APPs\postcardApp\envpostcard_everyday" /E
+
+git -C "D:\APPs\postcardApp" add .
+git -C "D:\APPs\postcardApp" commit -m "feat: update pages"
+git -C "D:\APPs\postcardApp" push
