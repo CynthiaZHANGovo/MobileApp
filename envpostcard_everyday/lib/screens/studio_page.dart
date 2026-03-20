@@ -38,7 +38,7 @@ class StudioPage extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 Text(
-                  'Generate a postcard first. This page will show multiple visual treatments, filter-based image styling, and data-driven stickers you can choose from.',
+                  'Generate a postcard first. This page will show richer postcard templates, illustrated weather elements, and album-ready versions for Future Self.',
                   style: TextStyle(
                     color: Color(0xFF637875),
                     height: 1.55,
@@ -62,40 +62,16 @@ class StudioPage extends StatelessWidget {
         const SizedBox(height: 18),
         _contextGrid(card),
         const SizedBox(height: 18),
-        Row(
-          children: [
-            Expanded(
-              child: FilledButton(
-                onPressed: () async {
-                  final message = await controller.saveForFutureSelf();
-                  if (context.mounted && message != null) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(message)));
-                  }
-                },
-                child: const Text('Save to Future Self'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton(
-                onPressed: () async {
-                  final message = await controller.publishToBoard();
-                  if (context.mounted && message != null) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(message)));
-                  }
-                },
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFFE0AA4A),
-                  foregroundColor: const Color(0xFF18312F),
-                ),
-                child: const Text('Publish to Post Office'),
-              ),
-            ),
-          ],
+        FilledButton(
+          onPressed: () async {
+            final message = await controller.saveForFutureSelf();
+            if (context.mounted && message != null) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(message)));
+            }
+          },
+          child: const Text('Save to Album'),
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
@@ -127,7 +103,7 @@ class StudioPage extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Current treatment: ${variant.name}',
+            'Current template: ${variant.name}',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -152,7 +128,7 @@ class StudioPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Generated Looks',
+          'Postcard Templates',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -161,7 +137,7 @@ class StudioPage extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 136,
+          height: 140,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: controller.variants.length,
@@ -173,7 +149,7 @@ class StudioPage extends StatelessWidget {
                 onTap: () => controller.selectVariant(index),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 220),
-                  width: 188,
+                  width: 198,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(

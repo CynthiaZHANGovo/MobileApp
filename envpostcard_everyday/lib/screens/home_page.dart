@@ -78,7 +78,7 @@ class _HomePageState extends State<HomePage> {
               NavigationDestination(
                 icon: Icon(Icons.inventory_2_outlined),
                 selectedIcon: Icon(Icons.inventory_2),
-                label: 'Archive',
+                label: 'Album',
               ),
             ],
           ),
