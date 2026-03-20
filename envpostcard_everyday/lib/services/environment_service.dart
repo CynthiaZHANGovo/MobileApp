@@ -74,7 +74,7 @@ class EnvironmentService {
   Future<Position> _determinePosition() async {
     var serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      throw Exception('定位服务未开启，请先在系统设置中打开定位。');
+      throw Exception('Location services are off. Please enable them first.');
     }
 
     var permission = await Geolocator.checkPermission();
@@ -84,29 +84,29 @@ class EnvironmentService {
 
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
-      throw Exception('未获得定位权限，无法获取环境数据。');
+      throw Exception('Location permission is required to read live context.');
     }
 
     return Geolocator.getCurrentPosition();
   }
 
   String _mapWeatherCode(int code) {
-    if (code == 0) return '晴朗';
-    if (code == 1 || code == 2) return '微云';
-    if (code == 3) return '阴天';
-    if (code == 45 || code == 48) return '雾气';
-    if (code >= 51 && code <= 67) return '细雨';
-    if (code >= 71 && code <= 77) return '降雪';
-    if (code >= 80 && code <= 82) return '阵雨';
-    if (code >= 95) return '雷暴';
-    return '天气流动中';
+    if (code == 0) return 'Clear sky';
+    if (code == 1 || code == 2) return 'Soft clouds';
+    if (code == 3) return 'Overcast';
+    if (code == 45 || code == 48) return 'Fog';
+    if (code >= 51 && code <= 67) return 'Light rain';
+    if (code >= 71 && code <= 77) return 'Snowfall';
+    if (code >= 80 && code <= 82) return 'Passing showers';
+    if (code >= 95) return 'Thunder';
+    return 'Shifting weather';
   }
 
   String _mapAqi(int aqi) {
-    if (aqi <= 20) return '空气清透';
-    if (aqi <= 40) return '空气温和';
-    if (aqi <= 60) return '空气一般';
-    if (aqi <= 80) return '空气偏沉';
-    return '空气需要留意';
+    if (aqi <= 20) return 'Air is crisp';
+    if (aqi <= 40) return 'Air is calm';
+    if (aqi <= 60) return 'Air is moderate';
+    if (aqi <= 80) return 'Air feels dense';
+    return 'Air needs care';
   }
 }

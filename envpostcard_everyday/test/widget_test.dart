@@ -2,10 +2,11 @@ import 'package:envpostcard_everyday/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('environmental postcard app renders headline', (tester) async {
+  testWidgets('environmental postcard app renders capture page', (tester) async {
     await tester.pumpWidget(const EnvironmentalPostcardApp());
 
-    expect(find.text('Environmental Postcard'), findsOneWidget);
-    expect(find.text('生成今日环境明信片'), findsOneWidget);
+    expect(find.text('Capture today on purpose.'), findsOneWidget);
+    expect(find.text('Photo Input'), findsOneWidget);
+    expect(find.text('Studio'), findsOneWidget);
   });
 }

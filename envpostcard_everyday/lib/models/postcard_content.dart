@@ -2,6 +2,8 @@ class PostcardContent {
   const PostcardContent({
     required this.imagePath,
     required this.message,
+    required this.styleName,
+    required this.stickerLabels,
     required this.locationLabel,
     required this.weatherLabel,
     required this.temperatureText,
@@ -14,6 +16,8 @@ class PostcardContent {
 
   final String imagePath;
   final String message;
+  final String styleName;
+  final List<String> stickerLabels;
   final String locationLabel;
   final String weatherLabel;
   final String temperatureText;
@@ -27,6 +31,8 @@ class PostcardContent {
     return {
       'imagePath': imagePath,
       'message': message,
+      'styleName': styleName,
+      'stickerLabels': stickerLabels,
       'locationLabel': locationLabel,
       'weatherLabel': weatherLabel,
       'temperatureText': temperatureText,
@@ -42,6 +48,11 @@ class PostcardContent {
     return PostcardContent(
       imagePath: json['imagePath'] as String? ?? '',
       message: json['message'] as String? ?? '',
+      styleName: json['styleName'] as String? ?? 'Atmosphere Wash',
+      stickerLabels:
+          (json['stickerLabels'] as List<dynamic>? ?? [])
+              .map((item) => item.toString())
+              .toList(),
       locationLabel: json['locationLabel'] as String? ?? '',
       weatherLabel: json['weatherLabel'] as String? ?? '',
       temperatureText: json['temperatureText'] as String? ?? '',

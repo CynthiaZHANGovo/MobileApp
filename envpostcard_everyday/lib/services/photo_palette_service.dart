@@ -34,13 +34,13 @@ class PhotoPaletteService {
         const Color(0xFFE8D7AD);
 
     final luminance = primary.computeLuminance();
-    final moodLabel = luminance > 0.58 ? '明亮、开放' : '沉静、内省';
+    final moodLabel = luminance > 0.58 ? 'Bright and open' : 'Quiet and inward';
 
     return PhotoPalette(
       primary: primary,
       secondary: secondary,
       moodLabel: moodLabel,
-      colorStory: '${_nameColor(primary)}与${_nameColor(secondary)}交叠',
+      colorStory: '${_nameColor(primary)} layered with ${_nameColor(secondary)}',
     );
   }
 
@@ -50,21 +50,21 @@ class PhotoPaletteService {
     final blue = _channel(color.b);
 
     if (red > 180 && green > 160 && blue < 140) {
-      return '金黄';
+      return 'amber';
     }
     if (green > 140 && red < 140) {
-      return '植被绿';
+      return 'leaf green';
     }
     if (blue > 150 && red < 130) {
-      return '空气蓝';
+      return 'sky blue';
     }
     if (red > 150 && blue > 120) {
-      return '暮色紫';
+      return 'twilight plum';
     }
     if (red > 150 && green > 110 && blue > 110) {
-      return '暖粉';
+      return 'warm rose';
     }
-    return '灰调自然色';
+    return 'soft earth';
   }
 
   int _channel(double value) => (value * 255).round().clamp(0, 255);

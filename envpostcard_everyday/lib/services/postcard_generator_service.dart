@@ -55,7 +55,7 @@ class PostcardGeneratorService {
           'aqiLabel': environment.aqiLabel,
           'streakDays': streakDays,
           'prompt':
-              '请根据照片氛围、天气、AQI、时间与连续打卡天数，生成一段20到60字的中文环境明信片文案，偏诗性与感受性，不要解释。'
+              'Write a 20 to 60 word environmental postcard in English. Make it poetic, emotional, and concise. Use the photo mood, weather, AQI, time, and streak. Do not explain the process.'
         }),
       );
       if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -78,20 +78,19 @@ class PostcardGeneratorService {
     required PhotoPalette palette,
     required int streakDays,
   }) {
-    final formatter = DateFormat('M月d日 HH:mm');
+    final formatter = DateFormat('MMM d • HH:mm');
     final timeText = formatter.format(environment.localTime);
     final weatherTone = switch (environment.weatherLabel) {
-      '晴朗' => '光线把世界的边缘擦得很清楚',
-      '微云' => '云层让今天的情绪变得柔软',
-      '阴天' => '灰色像一张慢慢摊开的纸',
-      '细雨' => '潮湿让每个细节都更贴近皮肤',
-      '雷暴' => '空气里有尚未说出的震动',
-      _ => '环境在缓慢地调整它的节奏',
+      'Clear sky' => 'light sharpens the edges of everything',
+      'Soft clouds' => 'the sky softens the day into a gentler rhythm',
+      'Overcast' => 'the gray air opens like folded paper',
+      'Light rain' => 'moisture pulls every detail closer to the skin',
+      'Thunder' => 'the air holds a quiet voltage before release',
+      _ => 'the atmosphere keeps rewriting its own pace',
     };
 
-    return '在${environment.locationLabel}，$timeText 的${environment.weatherLabel}里，'
-        '$weatherTone。照片里是${palette.colorStory}的${palette.moodLabel}，'
-        '${environment.aqiLabel}，体感像${environment.temperatureC.toStringAsFixed(0)}°C 的呼吸。'
-        '这是连续第 $streakDays 天，把今天寄给未来的自己。';
+    return 'At $timeText in ${environment.locationLabel}, ${environment.weatherLabel.toLowerCase()} settles in and '
+        '$weatherTone. The frame carries ${palette.colorStory}, feeling ${palette.moodLabel.toLowerCase()}. '
+        '${environment.aqiLabel}, ${environment.temperatureC.toStringAsFixed(0)}°C in the lungs, day $streakDays of mailing this world forward.';
   }
 }
