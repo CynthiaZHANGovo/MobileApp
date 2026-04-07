@@ -52,6 +52,16 @@ class PostcardRepository {
     return _loadCards(_publicBoardKey);
   }
 
+  Future<void> deleteFutureSelfCard(String createdAtIso) async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_futureSelfKey) ?? [];
+    final next = list.where((item) {
+      final map = jsonDecode(item) as Map<String, dynamic>;
+      return (map['createdAtIso'] as String? ?? '') != createdAtIso;
+    }).toList();
+    await prefs.setStringList(_futureSelfKey, next);
+  }
+
   Future<void> _appendCard(String key, PostcardContent card) async {
     final prefs = await SharedPreferences.getInstance();
     final list = prefs.getStringList(key) ?? [];

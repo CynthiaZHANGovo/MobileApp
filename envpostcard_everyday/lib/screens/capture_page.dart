@@ -98,6 +98,8 @@ class CapturePage extends StatelessWidget {
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _CaptureEyebrow(label: 'Capture'),
+          SizedBox(height: 12),
           Text(
             'Capture today on purpose.',
             style: TextStyle(
@@ -242,6 +244,32 @@ class CapturePage extends StatelessWidget {
             }),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CaptureEyebrow extends StatelessWidget {
+  const _CaptureEyebrow({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1,
+        ),
       ),
     );
   }

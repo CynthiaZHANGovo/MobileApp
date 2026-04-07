@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -8,46 +7,20 @@ import '../controllers/postcard_app_controller.dart';
 import '../models/postcard_content.dart';
 import 'album_detail_page.dart';
 
-class ArchivePage extends StatefulWidget {
+class ArchivePage extends StatelessWidget {
   const ArchivePage({super.key, required this.controller});
 
   final PostcardAppController controller;
 
   @override
-  State<ArchivePage> createState() => _ArchivePageState();
-}
-
-class _ArchivePageState extends State<ArchivePage> {
-  late final PageController _pageController;
-  double _page = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController(viewportFraction: 0.84)
-      ..addListener(() {
-        if (!mounted) return;
-        setState(() {
-          _page = _pageController.hasClients ? (_pageController.page ?? 0) : 0;
-        });
-      });
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final cards = widget.controller.futureCards;
+    final groups = _groupCards(controller.futureCards);
 
     return Stack(
       children: [
         const Positioned.fill(child: _AlbumBackground()),
         RefreshIndicator(
-          onRefresh: widget.controller.refreshCollections,
+          onRefresh: controller.refreshCollections,
           child: CustomScrollView(
             physics: const BouncingScrollPhysics(
               parent: AlwaysScrollableScrollPhysics(),
@@ -55,7 +28,7 @@ class _ArchivePageState extends State<ArchivePage> {
             slivers: [
               SliverAppBar(
                 pinned: true,
-                expandedHeight: 168,
+                expandedHeight: 170,
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 flexibleSpace: FlexibleSpaceBar(
@@ -68,15 +41,15 @@ class _ArchivePageState extends State<ArchivePage> {
                     ),
                   ),
                   background: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 86, 20, 24),
+                    padding: const EdgeInsets.fromLTRB(20, 84, 20, 24),
                     child: Align(
                       alignment: Alignment.bottomLeft,
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
                         children: const [
-                          _HeaderChip(label: 'Saved postcards'),
-                          _HeaderChip(label: 'Scrapbook archive'),
+                          _HeaderChip(label: 'Booklets by month'),
+                          _HeaderChip(label: 'Tap to open'),
                         ],
                       ),
                     ),
@@ -86,22 +59,54 @@ class _ArchivePageState extends State<ArchivePage> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(18, 10, 18, 120),
-                  child: cards.isEmpty
+                  child: groups.isEmpty
                       ? _emptyState()
                       : Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _statsBar(cards),
+                            _overview(groups),
                             const SizedBox(height: 20),
-                            _sectionTitle('Featured'),
-                            const SizedBox(height: 12),
-                            _featuredCarousel(cards),
+                            const _SectionEyebrow(label: 'Library'),
+                            const SizedBox(height: 10),
+                            const Text(
+                              'Monthly Booklets',
+                              style: TextStyle(
+                                color: Color(0xFF163231),
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                             const SizedBox(height: 14),
-                            _pageDots(cards.length),
-                            const SizedBox(height: 20),
-                            _sectionTitle('Archive Board'),
-                            const SizedBox(height: 12),
-                            _masonryBoard(cards),
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final width = constraints.maxWidth;
+                                final columns = width > 760 ? 3 : width > 500 ? 2 : 1;
+                                final cardWidth = (width - (columns - 1) * 14) / columns;
+                                return Wrap(
+                                  spacing: 14,
+                                  runSpacing: 14,
+                                  children: groups.map((group) {
+                                    return SizedBox(
+                                      width: cardWidth,
+                                      child: _BookletCard(
+                                        group: group,
+                                        onTap: () async {
+                                          await Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) => AlbumDetailPage(
+                                                controller: controller,
+                                                groupLabel: group.label,
+                                                cards: group.cards,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  }).toList(),
+                                );
+                              },
+                            ),
                           ],
                         ),
                 ),
@@ -113,9 +118,53 @@ class _ArchivePageState extends State<ArchivePage> {
     );
   }
 
+  List<_AlbumGroup> _groupCards(List<PostcardContent> cards) {
+    final formatter = DateFormat('MMMM yyyy');
+    final groups = <String, List<PostcardContent>>{};
+    for (final card in cards) {
+      final date = DateTime.tryParse(card.createdAtIso) ?? DateTime.now();
+      final key = formatter.format(date);
+      groups.putIfAbsent(key, () => []).add(card);
+    }
+    return groups.entries
+        .map((entry) => _AlbumGroup(label: entry.key, cards: entry.value))
+        .toList();
+  }
+
+  Widget _overview(List<_AlbumGroup> groups) {
+    final totalCards = groups.fold<int>(0, (sum, group) => sum + group.cards.length);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x10000000),
+            blurRadius: 18,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: [
+          _StatCard(value: '${groups.length}', label: 'Booklets'),
+          _StatCard(value: '$totalCards', label: 'Postcards'),
+          _StatCard(value: groups.first.label, label: 'Latest'),
+        ],
+      ),
+    );
+  }
+
   Widget _emptyState() {
-    return _surface(
+    return Container(
       padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(28),
+      ),
       child: const Text(
         'Nothing saved yet. Build a postcard in Studio and save it to start your album.',
         style: TextStyle(
@@ -125,53 +174,136 @@ class _ArchivePageState extends State<ArchivePage> {
       ),
     );
   }
+}
 
-  Widget _statsBar(List<PostcardContent> cards) {
-    final styles = cards.map((item) => item.styleName).toSet().length;
-    final streakMax = cards.fold<int>(0, (value, card) => math.max(value, card.streakDays));
-    final latest = DateTime.tryParse(cards.first.createdAtIso);
-    final tiles = [
-      _statTile('${cards.length}', 'Cards'),
-      _statTile('$styles', 'Themes'),
-      _statTile('$streakMax', 'Best Streak'),
-      if (latest != null) _statTile(DateFormat('MMM d').format(latest), 'Latest'),
-    ];
+class _BookletCard extends StatelessWidget {
+  const _BookletCard({
+    required this.group,
+    required this.onTap,
+  });
 
-    return _surface(
-      padding: const EdgeInsets.all(16),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final wide = constraints.maxWidth > 560;
-          if (wide) {
-            return Row(
-              children: List.generate(tiles.length, (index) {
-                return Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(right: index == tiles.length - 1 ? 0 : 10),
-                    child: tiles[index],
+  final _AlbumGroup group;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          gradient: const LinearGradient(
+            colors: [Color(0xFFF7F1E1), Color(0xFFEEE5D3)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x12000000),
+              blurRadius: 18,
+              offset: Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              left: 0,
+              top: 10,
+              bottom: 10,
+              child: Container(
+                width: 18,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD4B37E),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: AspectRatio(
+                      aspectRatio: 1.02,
+                      child: _CoverCollage(cards: group.cards),
+                    ),
                   ),
-                );
-              }),
-            );
-          }
-
-          return Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: tiles.map((tile) {
-              return SizedBox(
-                width: (constraints.maxWidth - 10) / 2,
-                child: tile,
-              );
-            }).toList(),
-          );
-        },
+                  const SizedBox(height: 14),
+                  Text(
+                    group.label,
+                    style: const TextStyle(
+                      color: Color(0xFF183231),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _BookletChip(label: '${group.cards.length} cards'),
+                      _BookletChip(label: group.cards.first.styleName),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
 
-  Widget _statTile(String value, String label) {
+class _CoverCollage extends StatelessWidget {
+  const _CoverCollage({required this.cards});
+
+  final List<PostcardContent> cards;
+
+  @override
+  Widget build(BuildContext context) {
+    final preview = cards.take(4).toList();
+    if (preview.length == 1) {
+      return _image(preview.first);
+    }
+
+    return GridView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      itemCount: preview.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 4,
+      ),
+      itemBuilder: (context, index) => _image(preview[index]),
+    );
+  }
+
+  Widget _image(PostcardContent card) {
+    final path = card.renderedImagePath.isNotEmpty ? card.renderedImagePath : card.imagePath;
+    return Image.file(
+      File(path),
+      fit: BoxFit.cover,
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  const _StatCard({required this.value, required this.label});
+
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
+      width: 132,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xFFF8F3E6),
@@ -182,6 +314,8 @@ class _ArchivePageState extends State<ArchivePage> {
         children: [
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: Color(0xFF173230),
               fontSize: 20,
@@ -201,318 +335,26 @@ class _ArchivePageState extends State<ArchivePage> {
       ),
     );
   }
+}
 
-  Widget _sectionTitle(String label) {
-    return Text(
-      label,
-      style: const TextStyle(
-        color: Color(0xFF163231),
-        fontSize: 22,
-        fontWeight: FontWeight.w800,
-      ),
-    );
-  }
+class _BookletChip extends StatelessWidget {
+  const _BookletChip({required this.label});
 
-  Widget _featuredCarousel(List<PostcardContent> cards) {
-    return SizedBox(
-      height: 420,
-      child: PageView.builder(
-        controller: _pageController,
-        itemCount: cards.length,
-        itemBuilder: (context, index) {
-          final card = cards[index];
-          final delta = index - _page;
-          final scale = 1 - (delta.abs().clamp(0.0, 1.0) * 0.05);
-          return Transform.scale(
-            scale: scale,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: _featuredCard(card, index),
-            ),
-          );
-        },
-      ),
-    );
-  }
+  final String label;
 
-  Widget _featuredCard(PostcardContent card, int index) {
-    final imagePath = card.renderedImagePath.isNotEmpty ? card.renderedImagePath : card.imagePath;
-    final heroTag = 'featured-$imagePath-$index';
-
-    return GestureDetector(
-      onTap: () => _openDetail(card, heroTag),
-      child: _surface(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 11,
-              child: Stack(
-                children: [
-                  Hero(
-                    tag: heroTag,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(22),
-                      child: Image.file(
-                        File(imagePath),
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: _badge(card.styleName),
-                  ),
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: _badge(_formatDate(card.createdAtIso)),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 14),
-            Expanded(
-              flex: 6,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8F3E6),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      card.message,
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFF183231),
-                        height: 1.55,
-                        fontSize: 14.5,
-                      ),
-                    ),
-                    const Spacer(),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _badge(card.locationLabel),
-                        _badge(card.weatherLabel),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _pageDots(int count) {
-    if (count <= 1) return const SizedBox.shrink();
-    final current = _page.round().clamp(0, count - 1);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(count, (index) {
-        final selected = current == index;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: selected ? 20 : 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: selected ? const Color(0xFF1E5751) : const Color(0xFFD7D0C0),
-            borderRadius: BorderRadius.circular(999),
-          ),
-        );
-      }),
-    );
-  }
-
-  Widget _masonryBoard(List<PostcardContent> cards) {
-    return _surface(
-      padding: const EdgeInsets.all(16),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final twoColumns = constraints.maxWidth > 560;
-          if (!twoColumns) {
-            return Column(
-              children: List.generate(cards.length, (index) {
-                return Padding(
-                  padding: EdgeInsets.only(bottom: index == cards.length - 1 ? 0 : 12),
-                  child: _memoryCard(cards[index], index, compact: false),
-                );
-              }),
-            );
-          }
-
-          final left = <PostcardContent>[];
-          final right = <PostcardContent>[];
-          for (var i = 0; i < cards.length; i++) {
-            (i.isEven ? left : right).add(cards[i]);
-          }
-
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  children: List.generate(left.length, (index) {
-                    final card = left[index];
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: index == left.length - 1 ? 0 : 12),
-                      child: _memoryCard(card, index * 2, compact: true),
-                    );
-                  }),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  children: List.generate(right.length, (index) {
-                    final card = right[index];
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: index == right.length - 1 ? 0 : 12),
-                      child: _memoryCard(card, index * 2 + 1, compact: true),
-                    );
-                  }),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _memoryCard(PostcardContent card, int index, {required bool compact}) {
-    final imagePath = card.renderedImagePath.isNotEmpty ? card.renderedImagePath : card.imagePath;
-    final heroTag = 'memory-$imagePath-$index';
-    final angle = compact ? (index.isEven ? -0.012 : 0.012) : 0.0;
-    final imageHeight = compact ? (index.isEven ? 150.0 : 190.0) : 220.0;
-
-    return Transform.rotate(
-      angle: angle,
-      child: GestureDetector(
-        onTap: () => _openDetail(card, heroTag),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: index.isEven ? const Color(0xFFF9F4E8) : const Color(0xFFF4EFE3),
-            borderRadius: BorderRadius.circular(22),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Hero(
-                tag: heroTag,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.file(
-                    File(imagePath),
-                    height: imageHeight,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      card.styleName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFF1A4A44),
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  _badge('Day ${card.streakDays}'),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                card.message,
-                maxLines: compact ? 4 : 5,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Color(0xFF183231),
-                  height: 1.45,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _formatDate(String iso) {
-    final parsed = DateTime.tryParse(iso);
-    if (parsed == null) return 'Today';
-    return DateFormat('MMM d').format(parsed);
-  }
-
-  Widget _badge(String label) {
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
+        color: Colors.white.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
         style: const TextStyle(
           color: Color(0xFF173432),
-          fontSize: 11,
           fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-
-  Widget _surface({
-    required Widget child,
-    EdgeInsetsGeometry? padding,
-  }) {
-    return Container(
-      padding: padding,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x10000000),
-            blurRadius: 18,
-            offset: Offset(0, 10),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
-
-  void _openDetail(PostcardContent card, String heroTag) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => AlbumDetailPage(
-          card: card,
-          heroTag: heroTag,
         ),
       ),
     );
@@ -534,43 +376,19 @@ class _AlbumBackground extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          Positioned(
-            top: -20,
-            right: -24,
-            child: _blob(
-              size: 160,
-              color: const Color(0x28D7B685),
-            ),
-          ),
-          Positioned(
-            top: 220,
-            left: -36,
-            child: _blob(
-              size: 120,
-              color: const Color(0x22B2CDD3),
-            ),
-          ),
-          Positioned(
-            bottom: 120,
-            right: -12,
-            child: _blob(
-              size: 130,
-              color: const Color(0x22D8A38B),
-            ),
-          ),
+          Positioned(top: -24, right: -24, child: _blob(160, const Color(0x28D7B685))),
+          Positioned(top: 240, left: -34, child: _blob(120, const Color(0x22B2CDD3))),
+          Positioned(bottom: 110, right: -18, child: _blob(140, const Color(0x22D8A38B))),
         ],
       ),
     );
   }
 
-  Widget _blob({required double size, required Color color}) {
+  Widget _blob(double size, Color color) {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }
@@ -597,4 +415,41 @@ class _HeaderChip extends StatelessWidget {
       ),
     );
   }
+}
+
+class _SectionEyebrow extends StatelessWidget {
+  const _SectionEyebrow({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0x14000000)),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: const TextStyle(
+          color: Color(0xFF59706B),
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+}
+
+class _AlbumGroup {
+  const _AlbumGroup({
+    required this.label,
+    required this.cards,
+  });
+
+  final String label;
+  final List<PostcardContent> cards;
 }

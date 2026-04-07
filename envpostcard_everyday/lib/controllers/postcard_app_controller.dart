@@ -41,6 +41,9 @@ class PostcardAppController extends ChangeNotifier {
   String? selectedCatalogStickerId;
   List<String> socialCaptions = const [];
   int selectedCaptionIndex = 0;
+  double photoScale = 1;
+  Offset photoOffset = Offset.zero;
+  double _gestureBaseScale = 1;
 
   PostcardStyleVariant? get selectedVariant =>
       variants.isEmpty ? null : variants[selectedVariantIndex];
@@ -52,7 +55,8 @@ class PostcardAppController extends ChangeNotifier {
     final liveEnvironment = environment;
     if (liveEnvironment == null) return const [];
     final cityLabel = liveEnvironment.locationLabel.split(',').first;
-    return [
+    final weather = liveEnvironment.weatherLabel.toLowerCase();
+    final catalog = <StudioSticker>[
       StudioSticker(
         id: 'catalog-weather',
         type: StickerType.weatherScene,
@@ -60,15 +64,41 @@ class PostcardAppController extends ChangeNotifier {
         dx: 0,
         dy: 0,
       ),
-      const StudioSticker(id: 'catalog-sun', type: StickerType.sunBadge, label: 'Sunny', dx: 0, dy: 0),
-      const StudioSticker(id: 'catalog-cloud', type: StickerType.cloudBadge, label: 'Cloud', dx: 0, dy: 0),
-      const StudioSticker(id: 'catalog-rain', type: StickerType.rainBadge, label: 'Rain', dx: 0, dy: 0),
-      const StudioSticker(id: 'catalog-wind', type: StickerType.windBadge, label: 'Wind', dx: 0, dy: 0),
-      const StudioSticker(id: 'catalog-leaf', type: StickerType.leafBadge, label: 'Leaf', dx: 0, dy: 0),
-      const StudioSticker(id: 'catalog-star', type: StickerType.starBadge, label: 'Star', dx: 0, dy: 0),
-      const StudioSticker(id: 'catalog-moon', type: StickerType.moonBadge, label: 'Moon', dx: 0, dy: 0),
-      const StudioSticker(id: 'catalog-flower', type: StickerType.flowerBadge, label: 'Bloom', dx: 0, dy: 0),
-      const StudioSticker(id: 'catalog-drop', type: StickerType.dropBadge, label: 'Drop', dx: 0, dy: 0),
+    ];
+    if (weather.contains('clear')) {
+      catalog.addAll(const [
+        StudioSticker(id: 'catalog-sun', type: StickerType.sunBadge, label: 'Sunny', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-sparkle', type: StickerType.sparkleBadge, label: 'Glow', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-leaf', type: StickerType.leafBadge, label: 'Leaf', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-flower', type: StickerType.flowerBadge, label: 'Bloom', dx: 0, dy: 0),
+      ]);
+    } else if (weather.contains('rain') || weather.contains('shower')) {
+      catalog.addAll(const [
+        StudioSticker(id: 'catalog-cloud', type: StickerType.cloudBadge, label: 'Cloud', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-rain', type: StickerType.rainBadge, label: 'Rain', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-drop', type: StickerType.dropBadge, label: 'Drop', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-wind', type: StickerType.windBadge, label: 'Wind', dx: 0, dy: 0),
+      ]);
+    } else if (weather.contains('snow')) {
+      catalog.addAll(const [
+        StudioSticker(id: 'catalog-snow', type: StickerType.snowBadge, label: 'Snow', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-star', type: StickerType.starBadge, label: 'Star', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-moon', type: StickerType.moonBadge, label: 'Moon', dx: 0, dy: 0),
+      ]);
+    } else if (weather.contains('thunder')) {
+      catalog.addAll(const [
+        StudioSticker(id: 'catalog-thunder', type: StickerType.thunderBadge, label: 'Bolt', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-cloud', type: StickerType.cloudBadge, label: 'Cloud', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-drop', type: StickerType.dropBadge, label: 'Drop', dx: 0, dy: 0),
+      ]);
+    } else {
+      catalog.addAll(const [
+        StudioSticker(id: 'catalog-cloud', type: StickerType.cloudBadge, label: 'Cloud', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-wind', type: StickerType.windBadge, label: 'Wind', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-star', type: StickerType.starBadge, label: 'Star', dx: 0, dy: 0),
+      ]);
+    }
+    catalog.addAll([
       StudioSticker(
         id: 'catalog-thermo',
         type: StickerType.thermoBadge,
@@ -98,7 +128,8 @@ class PostcardAppController extends ChangeNotifier {
         dx: 0,
         dy: 0,
       ),
-    ];
+    ]);
+    return catalog;
   }
 
   StudioSticker? get selectedCatalogSticker {
@@ -160,6 +191,8 @@ class PostcardAppController extends ChangeNotifier {
     selectedCatalogStickerId = null;
     socialCaptions = const [];
     selectedCaptionIndex = 0;
+    photoScale = 1;
+    photoOffset = Offset.zero;
     errorText = null;
     notifyListeners();
   }
@@ -249,6 +282,27 @@ class PostcardAppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void beginPhotoGesture() {
+    _gestureBaseScale = photoScale;
+  }
+
+  void updatePhotoGesture(double gestureScale, Offset focalDelta, Size bounds) {
+    final width = bounds.width == 0 ? 1 : bounds.width;
+    final height = bounds.height == 0 ? 1 : bounds.height;
+    photoScale = (_gestureBaseScale * gestureScale).clamp(1.0, 1.9);
+    photoOffset = Offset(
+      (photoOffset.dx + focalDelta.dx / width).clamp(-0.30, 0.30),
+      (photoOffset.dy + focalDelta.dy / height).clamp(-0.30, 0.30),
+    );
+    notifyListeners();
+  }
+
+  void resetPhotoAdjustments() {
+    photoScale = 1;
+    photoOffset = Offset.zero;
+    notifyListeners();
+  }
+
   void replaceSelectedSticker() {
     if (activeStickers.isEmpty) return;
     final template = selectedCatalogSticker;
@@ -265,6 +319,10 @@ class PostcardAppController extends ChangeNotifier {
   void addStickerFromCatalog() {
     final template = selectedCatalogSticker;
     if (template == null) return;
+    addStickerTemplate(template);
+  }
+
+  void addStickerTemplate(StudioSticker template) {
     final index = activeStickers.length;
     final next = StudioSticker(
       id: 'sticker-${DateTime.now().microsecondsSinceEpoch}',
@@ -272,6 +330,19 @@ class PostcardAppController extends ChangeNotifier {
       label: template.label,
       dx: (0.10 + (index % 3) * 0.18).clamp(0.06, 0.78),
       dy: (0.10 + (index % 4) * 0.12).clamp(0.08, 0.76),
+    );
+    activeStickers = [...activeStickers, next];
+    selectedStickerId = next.id;
+    notifyListeners();
+  }
+
+  void addStickerAt(StudioSticker template, Offset position, Size bounds) {
+    final width = bounds.width == 0 ? 1 : bounds.width;
+    final height = bounds.height == 0 ? 1 : bounds.height;
+    final next = template.copyWith(
+      id: 'sticker-${DateTime.now().microsecondsSinceEpoch}',
+      dx: (position.dx / width).clamp(0.04, 0.82),
+      dy: (position.dy / height).clamp(0.06, 0.82),
     );
     activeStickers = [...activeStickers, next];
     selectedStickerId = next.id;
@@ -412,6 +483,7 @@ class PostcardAppController extends ChangeNotifier {
   void _resetStickers() {
     final liveEnvironment = environment;
     if (liveEnvironment == null) return;
+    final weather = liveEnvironment.weatherLabel.toLowerCase();
     activeStickers = [
       StudioSticker(
         id: 'sticker-weather',
@@ -420,19 +492,44 @@ class PostcardAppController extends ChangeNotifier {
         dx: 0.07,
         dy: 0.08,
       ),
+      if (weather.contains('clear'))
+        const StudioSticker(
+          id: 'sticker-deco',
+          type: StickerType.sparkleBadge,
+          label: 'Glow',
+          dx: 0.78,
+          dy: 0.16,
+        )
+      else if (weather.contains('rain') || weather.contains('shower'))
+        const StudioSticker(
+          id: 'sticker-deco',
+          type: StickerType.dropBadge,
+          label: 'Drop',
+          dx: 0.78,
+          dy: 0.16,
+        )
+      else if (weather.contains('snow'))
+        const StudioSticker(
+          id: 'sticker-deco',
+          type: StickerType.snowBadge,
+          label: 'Snow',
+          dx: 0.78,
+          dy: 0.16,
+        )
+      else
+        const StudioSticker(
+          id: 'sticker-deco',
+          type: StickerType.cloudBadge,
+          label: 'Cloud',
+          dx: 0.78,
+          dy: 0.16,
+        ),
       StudioSticker(
         id: 'sticker-temp',
         type: StickerType.thermoBadge,
         label: '${liveEnvironment.temperatureC.toStringAsFixed(0)}°C',
-        dx: 0.72,
-        dy: 0.12,
-      ),
-      StudioSticker(
-        id: 'sticker-aqi',
-        type: StickerType.aqiBadge,
-        label: 'AQI ${liveEnvironment.aqi}',
-        dx: 0.70,
-        dy: 0.64,
+        dx: 0.68,
+        dy: 0.72,
       ),
     ];
     selectedStickerId = activeStickers.first.id;
@@ -479,5 +576,10 @@ class PostcardAppController extends ChangeNotifier {
       ShareParams(text: payload, files: [XFile(renderedPath)]),
     );
     return 'Postcard ready to share.';
+  }
+
+  Future<void> deleteSavedCard(String createdAtIso) async {
+    await _repository.deleteFutureSelfCard(createdAtIso);
+    await refreshCollections();
   }
 }

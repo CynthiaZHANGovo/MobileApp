@@ -79,17 +79,24 @@ class _StudioPageState extends State<StudioPage> {
             variant: variant,
             stickers: controller.activeStickers,
             selectedStickerId: controller.selectedStickerId,
+            photoScale: controller.photoScale,
+            photoOffset: controller.photoOffset,
             onStickerTap: controller.selectSticker,
             onStickerDrag: controller.moveSticker,
+            onPhotoScaleStart: controller.beginPhotoGesture,
+            onPhotoScaleUpdate: controller.updatePhotoGesture,
+            onStickerDrop: controller.addStickerAt,
           ),
         ),
         const SizedBox(height: 14),
-        const Text(
-          'Tap a sticker to select it. Drag to move it anywhere on the postcard.',
-          style: TextStyle(
-            color: Color(0xFF617773),
-            height: 1.45,
-          ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: const [
+            _StudioChip(icon: Icons.pan_tool_alt_outlined, label: 'Pinch photo'),
+            _StudioChip(icon: Icons.open_with_rounded, label: 'Drag sticker'),
+            _StudioChip(icon: Icons.download_done_rounded, label: 'Export ready'),
+          ],
         ),
         const SizedBox(height: 18),
         _panelSwitcher(),
@@ -115,6 +122,8 @@ class _StudioPageState extends State<StudioPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const _SectionEyebrow(label: 'Studio'),
+          SizedBox(height: 10),
           const Text(
             'Studio',
             style: TextStyle(
@@ -123,16 +132,16 @@ class _StudioPageState extends State<StudioPage> {
               color: Color(0xFF173230),
             ),
           ),
-          const SizedBox(height: 10),
-          Text(
-            'Current template: ${variant.name}',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: variant.accentColor,
-            ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _templatePill(variant.name, variant.accentColor),
+              _templatePill(variant.stampLabel, const Color(0xFF4F726C)),
+            ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 10),
           Text(
             variant.tagline,
             style: const TextStyle(
@@ -185,6 +194,8 @@ class _StudioPageState extends State<StudioPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const _SectionEyebrow(label: 'Canvas'),
+        const SizedBox(height: 8),
         const Text(
           'Postcard Templates',
           style: TextStyle(
@@ -195,7 +206,7 @@ class _StudioPageState extends State<StudioPage> {
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 140,
+          height: 134,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: controller.variants.length,
@@ -207,8 +218,8 @@ class _StudioPageState extends State<StudioPage> {
                 onTap: () => controller.selectVariant(index),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 220),
-                  width: 198,
-                  padding: const EdgeInsets.all(16),
+                  width: 188,
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [item.frameColor, item.accentColor],
@@ -235,9 +246,11 @@ class _StudioPageState extends State<StudioPage> {
                       const SizedBox(height: 8),
                       Text(
                         item.tagline,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Color(0xCC132826),
-                          height: 1.45,
+                          height: 1.35,
                         ),
                       ),
                       const Spacer(),
@@ -246,6 +259,7 @@ class _StudioPageState extends State<StudioPage> {
                         style: const TextStyle(
                           color: Color(0xFF132826),
                           fontWeight: FontWeight.w700,
+                          fontSize: 12,
                         ),
                       ),
                     ],
@@ -260,24 +274,17 @@ class _StudioPageState extends State<StudioPage> {
   }
 
   Widget _stickerEditor() {
-    final selectedCatalog = controller.selectedCatalogStickerId;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const _SectionEyebrow(label: 'Decor'),
+        const SizedBox(height: 8),
         const Text(
-          'Sticker Shelf',
+          'Sticker Tray',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: Color(0xFF163231),
-          ),
-        ),
-        const SizedBox(height: 10),
-        const Text(
-          'Select a sticker style, then add it or replace the selected sticker.',
-          style: TextStyle(
-            color: Color(0xFF617773),
-            height: 1.45,
           ),
         ),
         const SizedBox(height: 12),
@@ -289,70 +296,50 @@ class _StudioPageState extends State<StudioPage> {
             separatorBuilder: (_, _) => const SizedBox(width: 10),
             itemBuilder: (context, index) {
               final sticker = controller.stickerCatalog[index];
-              final selected = sticker.id == selectedCatalog;
-              return GestureDetector(
-                onTap: () => controller.selectCatalogSticker(sticker.id),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
-                  width: 104,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(22),
-                    border: Border.all(
-                      color: selected
-                          ? const Color(0xFF1B5952)
-                          : const Color(0x12000000),
-                      width: selected ? 2 : 1,
-                    ),
+              final selected = sticker.id == controller.selectedCatalogStickerId;
+              return LongPressDraggable<StudioSticker>(
+                data: sticker,
+                feedback: Material(
+                  color: Colors.transparent,
+                  child: Transform.scale(
+                    scale: 1.08,
+                    child: _catalogCard(sticker, false),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(_catalogIcon(sticker.type), color: const Color(0xFF1B5952)),
-                      const Spacer(),
-                      Text(
-                        sticker.label,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Color(0xFF183231),
-                          fontWeight: FontWeight.w700,
-                          height: 1.3,
-                        ),
-                      ),
-                    ],
-                  ),
+                ),
+                childWhenDragging: Opacity(
+                  opacity: 0.30,
+                  child: _catalogCard(sticker, selected),
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    controller.selectCatalogSticker(sticker.id);
+                    controller.addStickerTemplate(sticker);
+                  },
+                  child: _catalogCard(sticker, selected),
                 ),
               );
             },
           ),
         ),
         const SizedBox(height: 12),
-        Row(
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
           children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: controller.replaceSelectedSticker,
-                icon: const Icon(Icons.swap_horiz_rounded),
-                label: const Text('Replace'),
-              ),
+            OutlinedButton.icon(
+              onPressed: controller.replaceSelectedSticker,
+              icon: const Icon(Icons.swap_horiz_rounded),
+              label: const Text('Replace'),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: controller.addStickerFromCatalog,
-                icon: const Icon(Icons.add_circle_outline_rounded),
-                label: const Text('Add'),
-              ),
+            OutlinedButton.icon(
+              onPressed: controller.deleteSelectedSticker,
+              icon: const Icon(Icons.delete_outline_rounded),
+              label: const Text('Delete'),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: controller.deleteSelectedSticker,
-                icon: const Icon(Icons.delete_outline_rounded),
-                label: const Text('Delete'),
-              ),
+            FilledButton.tonalIcon(
+              onPressed: controller.resetPhotoAdjustments,
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Reset Photo'),
             ),
           ],
         ),
@@ -589,6 +576,8 @@ class _StudioPageState extends State<StudioPage> {
                     variant: variant,
                     stickers: controller.activeStickers,
                     selectedStickerId: null,
+                    photoScale: controller.photoScale,
+                    photoOffset: controller.photoOffset,
                   ),
                 ),
               ),
@@ -622,6 +611,55 @@ class _StudioPageState extends State<StudioPage> {
       StickerType.snowBadge => Icons.ac_unit_rounded,
       StickerType.sparkleBadge => Icons.auto_awesome_rounded,
     };
+  }
+
+  Widget _catalogCard(StudioSticker sticker, bool selected) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      width: 92,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: selected ? const Color(0xFF1B5952) : const Color(0x12000000),
+          width: selected ? 2 : 1,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0C000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7F0E0),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(_catalogIcon(sticker.type), color: const Color(0xFF1B5952)),
+          ),
+          const Spacer(),
+          Text(
+            sticker.label,
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Color(0xFF183231),
+              fontWeight: FontWeight.w700,
+              height: 1.25,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _contextGrid(PostcardContent card) {
@@ -676,6 +714,82 @@ class _StudioPageState extends State<StudioPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _templatePill(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionEyebrow extends StatelessWidget {
+  const _SectionEyebrow({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0x14000000)),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: const TextStyle(
+          color: Color(0xFF59706B),
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+}
+
+class _StudioChip extends StatelessWidget {
+  const _StudioChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: const Color(0xFF1B5952)),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFF59706B),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
