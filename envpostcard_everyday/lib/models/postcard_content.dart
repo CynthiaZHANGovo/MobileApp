@@ -1,6 +1,7 @@
 class PostcardContent {
   const PostcardContent({
     required this.imagePath,
+    required this.renderedImagePath,
     required this.message,
     required this.styleName,
     required this.stickerLabels,
@@ -15,6 +16,7 @@ class PostcardContent {
   });
 
   final String imagePath;
+  final String renderedImagePath;
   final String message;
   final String styleName;
   final List<String> stickerLabels;
@@ -30,6 +32,7 @@ class PostcardContent {
   Map<String, dynamic> toJson() {
     return {
       'imagePath': imagePath,
+      'renderedImagePath': renderedImagePath,
       'message': message,
       'styleName': styleName,
       'stickerLabels': stickerLabels,
@@ -47,6 +50,7 @@ class PostcardContent {
   factory PostcardContent.fromJson(Map<String, dynamic> json) {
     return PostcardContent(
       imagePath: json['imagePath'] as String? ?? '',
+      renderedImagePath: json['renderedImagePath'] as String? ?? '',
       message: json['message'] as String? ?? '',
       styleName: json['styleName'] as String? ?? 'Atmosphere Wash',
       stickerLabels:

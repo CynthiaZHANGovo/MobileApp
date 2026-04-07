@@ -57,30 +57,47 @@ class _HomePageState extends State<HomePage> {
             ),
             child: SafeArea(child: pages[_currentIndex]),
           ),
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: _currentIndex,
-            onDestinationSelected: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.camera_alt_outlined),
-                selectedIcon: Icon(Icons.camera_alt),
-                label: 'Capture',
+          bottomNavigationBar: Container(
+            margin: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x14000000),
+                  blurRadius: 20,
+                  offset: Offset(0, 10),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28),
+              child: NavigationBar(
+                height: 72,
+                selectedIndex: _currentIndex,
+                onDestinationSelected: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+                destinations: const [
+                  NavigationDestination(
+                    icon: Icon(Icons.camera_alt_outlined),
+                    selectedIcon: Icon(Icons.camera_alt),
+                    label: 'Capture',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.auto_awesome_mosaic_outlined),
+                    selectedIcon: Icon(Icons.auto_awesome_mosaic),
+                    label: 'Studio',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.photo_album_outlined),
+                    selectedIcon: Icon(Icons.photo_album),
+                    label: 'Album',
+                  ),
+                ],
               ),
-              NavigationDestination(
-                icon: Icon(Icons.auto_awesome_mosaic_outlined),
-                selectedIcon: Icon(Icons.auto_awesome_mosaic),
-                label: 'Studio',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.inventory_2_outlined),
-                selectedIcon: Icon(Icons.inventory_2),
-                label: 'Album',
-              ),
-            ],
+            ),
           ),
         );
       },

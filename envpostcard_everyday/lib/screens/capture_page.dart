@@ -78,8 +78,8 @@ class CapturePage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),
         ),
-        const SizedBox(height: 24),
-        _stepStrip(),
+        const SizedBox(height: 22),
+        _journeyCard(),
       ],
     );
   }
@@ -166,54 +166,83 @@ class CapturePage extends StatelessWidget {
     );
   }
 
-  Widget _stepStrip() {
-    final steps = [
-      ('1', 'Photo', 'Capture the scene you noticed.'),
-      ('2', 'Context', 'Read weather, AQI, and time.'),
-      ('3', 'Studio', 'Pick a postcard treatment.'),
+  Widget _journeyCard() {
+    final items = [
+      ('Photo', Icons.photo_camera_outlined),
+      ('AI Mix', Icons.auto_awesome_outlined),
+      ('Studio', Icons.edit_outlined),
+      ('Album', Icons.collections_bookmark_outlined),
     ];
 
-    return Row(
-      children: steps.map((step) {
-        return Expanded(
-          child: Container(
-            margin: EdgeInsets.only(right: step == steps.last ? 0 : 10),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFFBF2),
-              borderRadius: BorderRadius.circular(22),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  step.$1,
-                  style: const TextStyle(
-                    color: Color(0xFF1B4B45),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  step.$2,
-                  style: const TextStyle(
-                    color: Color(0xFF183231),
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  step.$3,
-                  style: const TextStyle(
-                    color: Color(0xFF6B7A77),
-                    height: 1.45,
-                  ),
-                ),
-              ],
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBF2),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Postcard Journey',
+            style: TextStyle(
+              color: Color(0xFF183231),
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
             ),
           ),
-        );
-      }).toList(),
+          const SizedBox(height: 14),
+          Row(
+            children: List.generate(items.length, (index) {
+              final item = items[index];
+              return Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: index == 0
+                                  ? const Color(0xFF1E5751)
+                                  : const Color(0xFFECE3CF),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Icon(
+                              item.$2,
+                              color: index == 0 ? Colors.white : const Color(0xFF52706A),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            item.$1,
+                            style: const TextStyle(
+                              color: Color(0xFF526764),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (index < items.length - 1)
+                      const Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: 22),
+                          child: Divider(
+                            thickness: 1.2,
+                            color: Color(0xFFD9CFBC),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            }),
+          ),
+        ],
+      ),
     );
   }
 }

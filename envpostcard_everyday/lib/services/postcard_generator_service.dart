@@ -93,4 +93,17 @@ class PostcardGeneratorService {
         '$weatherTone. The frame carries ${palette.colorStory}, feeling ${palette.moodLabel.toLowerCase()}. '
         '${environment.aqiLabel}, ${environment.temperatureC.toStringAsFixed(0)}°C in the lungs, day $streakDays of mailing this world forward.';
   }
+
+  List<String> generateSocialCaptions({
+    required EnvironmentSnapshot environment,
+    required PhotoPalette palette,
+    required int streakDays,
+  }) {
+    return [
+      'Today looked like ${palette.colorStory} in ${environment.locationLabel}.',
+      '${environment.weatherLabel} today, day $streakDays of noticing what the environment is saying back.',
+      'Filed from ${environment.locationLabel}: ${environment.temperatureC.toStringAsFixed(0)}°C, ${environment.aqiLabel.toLowerCase()}, and a ${palette.moodLabel.toLowerCase()} frame.',
+      'An environmental postcard from today: ${environment.weatherLabel.toLowerCase()}, ${environment.aqiLabel.toLowerCase()}, and one small act of attention.',
+    ];
+  }
 }

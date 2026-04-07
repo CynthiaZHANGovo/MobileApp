@@ -23,8 +23,14 @@ class EnvironmentalPostcardApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: scheme,
         scaffoldBackgroundColor: const Color(0xFFF3E9D2),
+        textTheme: ThemeData.light().textTheme.apply(
+          bodyColor: const Color(0xFF183433),
+          displayColor: const Color(0xFF183433),
+        ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFF1E5751),
+            foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
@@ -40,6 +46,17 @@ class EnvironmentalPostcardApp extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
             ),
           ),
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: Colors.white.withValues(alpha: 0.96),
+          indicatorColor: const Color(0xFFE7F0EC),
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            final selected = states.contains(WidgetState.selected);
+            return TextStyle(
+              color: const Color(0xFF173230),
+              fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
+            );
+          }),
         ),
       ),
       home: const HomePage(),
