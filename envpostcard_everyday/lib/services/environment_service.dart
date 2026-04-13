@@ -59,16 +59,43 @@ class EnvironmentService {
         position.longitude,
       );
       final place = placemarks.first;
-      final locality = place.locality ?? place.subAdministrativeArea;
-      final country = place.country;
+      final locality = _englishPlacePart(
+        place.locality,
+        fallback: place.subAdministrativeArea,
+      );
+      final country = _englishCountry(place.country);
       if (locality != null && country != null) {
         return '$locality, $country';
       }
+      if (locality != null) return locality;
     } catch (_) {
       // Falls back to coordinates when reverse geocoding is unavailable.
     }
     return '${position.latitude.toStringAsFixed(2)}, '
         '${position.longitude.toStringAsFixed(2)}';
+  }
+
+  String? _englishPlacePart(String? value, {String? fallback}) {
+    final text = (value ?? fallback)?.trim();
+    if (text == null || text.isEmpty) return null;
+    return text
+        .replaceAll('，', ',')
+        .replaceAll('英国', 'United Kingdom')
+        .replaceAll('美国', 'United States')
+        .replaceAll('中国', 'China');
+  }
+
+  String? _englishCountry(String? value) {
+    final text = value?.trim();
+    if (text == null || text.isEmpty) return null;
+    return switch (text) {
+      '英国' => 'United Kingdom',
+      '美国' => 'United States',
+      '中国' => 'China',
+      '日本' => 'Japan',
+      '韩国' => 'South Korea',
+      _ => text,
+    };
   }
 
   Future<Position> _determinePosition() async {

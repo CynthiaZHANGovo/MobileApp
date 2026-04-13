@@ -69,6 +69,8 @@ class PostcardAppController extends ChangeNotifier {
       catalog.addAll(const [
         StudioSticker(id: 'catalog-sun', type: StickerType.sunBadge, label: 'Sunny', dx: 0, dy: 0),
         StudioSticker(id: 'catalog-sparkle', type: StickerType.sparkleBadge, label: 'Glow', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-shades', type: StickerType.shadeBadge, label: 'Shades', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-drink', type: StickerType.drinkBadge, label: 'Cold Drink', dx: 0, dy: 0),
         StudioSticker(id: 'catalog-leaf', type: StickerType.leafBadge, label: 'Leaf', dx: 0, dy: 0),
         StudioSticker(id: 'catalog-flower', type: StickerType.flowerBadge, label: 'Bloom', dx: 0, dy: 0),
       ]);
@@ -76,6 +78,8 @@ class PostcardAppController extends ChangeNotifier {
       catalog.addAll(const [
         StudioSticker(id: 'catalog-cloud', type: StickerType.cloudBadge, label: 'Cloud', dx: 0, dy: 0),
         StudioSticker(id: 'catalog-rain', type: StickerType.rainBadge, label: 'Rain', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-umbrella', type: StickerType.umbrellaBadge, label: 'Umbrella', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-boots', type: StickerType.bootBadge, label: 'Rain Boots', dx: 0, dy: 0),
         StudioSticker(id: 'catalog-drop', type: StickerType.dropBadge, label: 'Drop', dx: 0, dy: 0),
         StudioSticker(id: 'catalog-wind', type: StickerType.windBadge, label: 'Wind', dx: 0, dy: 0),
       ]);
@@ -84,11 +88,13 @@ class PostcardAppController extends ChangeNotifier {
         StudioSticker(id: 'catalog-snow', type: StickerType.snowBadge, label: 'Snow', dx: 0, dy: 0),
         StudioSticker(id: 'catalog-star', type: StickerType.starBadge, label: 'Star', dx: 0, dy: 0),
         StudioSticker(id: 'catalog-moon', type: StickerType.moonBadge, label: 'Moon', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-drink', type: StickerType.drinkBadge, label: 'Warm Cup', dx: 0, dy: 0),
       ]);
     } else if (weather.contains('thunder')) {
       catalog.addAll(const [
         StudioSticker(id: 'catalog-thunder', type: StickerType.thunderBadge, label: 'Bolt', dx: 0, dy: 0),
         StudioSticker(id: 'catalog-cloud', type: StickerType.cloudBadge, label: 'Cloud', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-umbrella', type: StickerType.umbrellaBadge, label: 'Umbrella', dx: 0, dy: 0),
         StudioSticker(id: 'catalog-drop', type: StickerType.dropBadge, label: 'Drop', dx: 0, dy: 0),
       ]);
     } else {
@@ -96,6 +102,7 @@ class PostcardAppController extends ChangeNotifier {
         StudioSticker(id: 'catalog-cloud', type: StickerType.cloudBadge, label: 'Cloud', dx: 0, dy: 0),
         StudioSticker(id: 'catalog-wind', type: StickerType.windBadge, label: 'Wind', dx: 0, dy: 0),
         StudioSticker(id: 'catalog-star', type: StickerType.starBadge, label: 'Star', dx: 0, dy: 0),
+        StudioSticker(id: 'catalog-drink', type: StickerType.drinkBadge, label: 'Cup', dx: 0, dy: 0),
       ]);
     }
     catalog.addAll([

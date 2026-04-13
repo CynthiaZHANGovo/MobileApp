@@ -823,6 +823,10 @@ class PostcardPreview extends StatelessWidget {
       StickerType.flowerBadge => const Color(0xFFF7DFD7),
       StickerType.dropBadge => const Color(0xFFD6F1F7),
       StickerType.sparkleBadge => const Color(0xFFF9E6C5),
+      StickerType.shadeBadge => const Color(0xFFE9E9E9),
+      StickerType.drinkBadge => const Color(0xFFFFE1C8),
+      StickerType.umbrellaBadge => const Color(0xFFDCE9FF),
+      StickerType.bootBadge => const Color(0xFFE7DCCB),
       _ => Colors.white,
     };
   }
@@ -842,6 +846,10 @@ class PostcardPreview extends StatelessWidget {
       StickerType.flowerBadge => Icons.local_florist_rounded,
       StickerType.dropBadge => Icons.water_drop_rounded,
       StickerType.sparkleBadge => Icons.auto_awesome_rounded,
+      StickerType.shadeBadge => Icons.sentiment_very_satisfied_rounded,
+      StickerType.drinkBadge => Icons.local_cafe_rounded,
+      StickerType.umbrellaBadge => Icons.beach_access_rounded,
+      StickerType.bootBadge => Icons.hiking_rounded,
       StickerType.thermoBadge => Icons.thermostat_rounded,
       StickerType.aqiBadge => Icons.blur_on_rounded,
       StickerType.timeBadge => Icons.schedule_rounded,
