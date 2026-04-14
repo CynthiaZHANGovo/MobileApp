@@ -14,10 +14,17 @@ class PostcardPreview extends StatelessWidget {
     required this.variant,
     this.stickers = const [],
     this.selectedStickerId,
+    this.armedDeleteStickerId,
+    this.photoSelected = false,
     this.photoScale = 1,
     this.photoOffset = Offset.zero,
+    this.onPhotoTap,
     this.onStickerTap,
+    this.onStickerLongPress,
     this.onStickerDrag,
+    this.onStickerScaleStart,
+    this.onStickerScaleUpdate,
+    this.onStickerDelete,
     this.onPhotoDrag,
     this.onPhotoScaleStart,
     this.onPhotoScaleUpdate,
@@ -28,10 +35,18 @@ class PostcardPreview extends StatelessWidget {
   final PostcardStyleVariant variant;
   final List<StudioSticker> stickers;
   final String? selectedStickerId;
+  final String? armedDeleteStickerId;
+  final bool photoSelected;
   final double photoScale;
   final Offset photoOffset;
+  final VoidCallback? onPhotoTap;
   final void Function(String stickerId)? onStickerTap;
+  final void Function(String stickerId)? onStickerLongPress;
   final void Function(String stickerId, Offset delta, Size bounds)? onStickerDrag;
+  final void Function(String stickerId)? onStickerScaleStart;
+  final void Function(String stickerId, double gestureScale, Offset focalDelta, Size bounds)?
+      onStickerScaleUpdate;
+  final void Function(String stickerId)? onStickerDelete;
   final void Function(Offset delta, Size bounds)? onPhotoDrag;
   final VoidCallback? onPhotoScaleStart;
   final void Function(double gestureScale, Offset focalDelta, Size bounds)? onPhotoScaleUpdate;
@@ -100,22 +115,43 @@ class PostcardPreview extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, overlay) {
         final bounds = Size(overlay.maxWidth, overlay.maxHeight);
+        final selectedSticker = selectedStickerId;
         return Stack(
           children: [
             Positioned.fill(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onScaleStart: onPhotoScaleStart == null ? null : (_) => onPhotoScaleStart!.call(),
-                onScaleUpdate: onPhotoScaleUpdate == null
-                    ? null
-                    : (details) => onPhotoScaleUpdate!.call(
-                          details.scale,
-                          details.focalPointDelta,
-                          bounds,
-                        ),
-                onPanUpdate: onPhotoDrag == null
-                    ? null
-                    : (details) => onPhotoDrag!.call(details.delta, bounds),
+                onTap: onPhotoTap,
+                onScaleStart: (_) {
+                  if (selectedSticker != null && onStickerScaleStart != null) {
+                    onStickerScaleStart!.call(selectedSticker);
+                    return;
+                  }
+                  if (!photoSelected) return;
+                  onPhotoScaleStart?.call();
+                },
+                onScaleUpdate: (details) {
+                  if (selectedSticker != null &&
+                      onStickerScaleUpdate != null &&
+                      details.pointerCount > 1) {
+                    onStickerScaleUpdate!.call(
+                      selectedSticker,
+                      details.scale,
+                      details.focalPointDelta,
+                      bounds,
+                    );
+                    return;
+                  }
+                  if (!photoSelected) return;
+                  onPhotoScaleUpdate?.call(
+                    details.scale,
+                    details.focalPointDelta,
+                    bounds,
+                  );
+                },
+                onPanUpdate: selectedSticker == null && onPhotoDrag != null
+                    ? (details) => onPhotoDrag!.call(details.delta, bounds)
+                    : null,
                 child: _layoutBody(scale),
               ),
             ),
@@ -141,22 +177,24 @@ class PostcardPreview extends StatelessWidget {
                       top: overlay.maxHeight * sticker.dy,
                       child: GestureDetector(
                         onTap: () => onStickerTap?.call(sticker.id),
-                        onPanUpdate: (details) => onStickerDrag?.call(
-                          sticker.id,
-                          details.delta,
-                          bounds,
-                        ),
+                        onLongPress: () => onStickerLongPress?.call(sticker.id),
+                        onPanUpdate: (details) {
+                          onStickerDrag?.call(sticker.id, details.delta, bounds);
+                        },
                         child: _stickerWidget(
                           sticker,
                           overlay.maxWidth,
                           selectedStickerId == sticker.id,
+                          deletable: onStickerDelete != null,
+                          showDelete: armedDeleteStickerId == sticker.id,
+                          onDelete: () => onStickerDelete?.call(sticker.id),
                         ),
                       ),
                     );
-                  }).toList(),
+                    }).toList(),
+                  ),
                 ),
               ),
-            ),
           ],
         );
       },
@@ -257,15 +295,21 @@ class PostcardPreview extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        variant.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF18312F),
-                          fontSize: 14 * scale,
+                      Expanded(
+                        child: Text(
+                          variant.name,
+                          maxLines: 2,
+                          softWrap: true,
+                          overflow: TextOverflow.fade,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF18312F),
+                            fontSize: 12.5 * scale,
+                            height: 1.05,
+                          ),
                         ),
                       ),
-                      const Spacer(),
+                      SizedBox(width: 8 * scale),
                       Text(
                         'Future Self',
                         style: TextStyle(
@@ -331,12 +375,19 @@ class PostcardPreview extends StatelessWidget {
                       spacing: 8 * scale,
                       runSpacing: 6 * scale,
                       children: [
-                        Text(
-                          variant.name,
-                          style: TextStyle(
-                            color: variant.accentColor,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 12 * scale,
+                        ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: 120 * scale),
+                          child: Text(
+                            variant.name,
+                            maxLines: 2,
+                            softWrap: true,
+                            overflow: TextOverflow.fade,
+                            style: TextStyle(
+                              color: variant.accentColor,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 11.5 * scale,
+                              height: 1.05,
+                            ),
                           ),
                         ),
                         _miniBadge(variant.stampLabel, scale),
@@ -398,10 +449,14 @@ class PostcardPreview extends StatelessWidget {
                     Expanded(
                       child: Text(
                         variant.name,
+                        maxLines: 2,
+                        softWrap: true,
+                        overflow: TextOverflow.fade,
                         style: TextStyle(
                           color: variant.accentColor,
                           fontWeight: FontWeight.w800,
-                          fontSize: 12.5 * scale,
+                          fontSize: 11.8 * scale,
+                          height: 1.05,
                         ),
                       ),
                     ),
@@ -576,6 +631,20 @@ class PostcardPreview extends StatelessWidget {
               ),
             ),
           ),
+          if (photoSelected)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(borderRadius),
+                    border: Border.all(
+                      color: const Color(0xFFCC8C5A),
+                      width: 2.4,
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -597,10 +666,14 @@ class PostcardPreview extends StatelessWidget {
               Expanded(
                 child: Text(
                   variant.name,
+                  maxLines: 2,
+                  softWrap: true,
+                  overflow: TextOverflow.fade,
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF162D2A),
-                    fontSize: 13.5 * scale,
+                    fontSize: 12.4 * scale,
+                    height: 1.05,
                   ),
                 ),
               ),
@@ -727,23 +800,50 @@ class PostcardPreview extends StatelessWidget {
     StudioSticker sticker,
     double width,
     bool selected,
+    {required bool deletable, required bool showDelete, required VoidCallback onDelete}
   ) {
     final compact = width < 320;
     final outline = selected ? const Color(0xFF163231) : Colors.transparent;
+    final body = switch (sticker.type) {
+      StickerType.weatherScene => _weatherSceneSticker(sticker.label, compact: compact),
+      StickerType.thermoBadge ||
+      StickerType.aqiBadge ||
+      StickerType.timeBadge ||
+      StickerType.cityBadge => _microLabelSticker(sticker, compact: compact),
+      _ => _decoIconSticker(sticker, compact: compact),
+    };
 
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: outline, width: selected ? 1.5 : 0),
+    return Transform.scale(
+      scale: sticker.scale,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: outline, width: selected ? 1.5 : 0),
+            ),
+            child: body,
+          ),
+          if (deletable && showDelete)
+            Positioned(
+              right: -8,
+              top: -8,
+              child: GestureDetector(
+                onTap: onDelete,
+                child: Container(
+                  width: 22,
+                  height: 22,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF163231),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
+                ),
+              ),
+            ),
+        ],
       ),
-      child: switch (sticker.type) {
-        StickerType.weatherScene => _weatherSceneSticker(sticker.label, compact: compact),
-        StickerType.thermoBadge ||
-        StickerType.aqiBadge ||
-        StickerType.timeBadge ||
-        StickerType.cityBadge => _microLabelSticker(sticker, compact: compact),
-        _ => _decoIconSticker(sticker, compact: compact),
-      },
     );
   }
 

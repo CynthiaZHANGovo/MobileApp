@@ -38,12 +38,15 @@ class PostcardAppController extends ChangeNotifier {
   String? generatedMessage;
   List<StudioSticker> activeStickers = const [];
   String? selectedStickerId;
+  String? armedDeleteStickerId;
+  bool photoSelected = false;
   String? selectedCatalogStickerId;
   List<String> socialCaptions = const [];
   int selectedCaptionIndex = 0;
   double photoScale = 1;
   Offset photoOffset = Offset.zero;
   double _gestureBaseScale = 1;
+  double _stickerGestureBaseScale = 1;
 
   PostcardStyleVariant? get selectedVariant =>
       variants.isEmpty ? null : variants[selectedVariantIndex];
@@ -195,6 +198,8 @@ class PostcardAppController extends ChangeNotifier {
     selectedVariantIndex = 0;
     activeStickers = const [];
     selectedStickerId = null;
+    armedDeleteStickerId = null;
+    photoSelected = false;
     selectedCatalogStickerId = null;
     socialCaptions = const [];
     selectedCaptionIndex = 0;
@@ -259,6 +264,34 @@ class PostcardAppController extends ChangeNotifier {
 
   void selectSticker(String stickerId) {
     selectedStickerId = stickerId;
+    armedDeleteStickerId = null;
+    photoSelected = false;
+    notifyListeners();
+  }
+
+  void selectPhoto() {
+    selectedStickerId = null;
+    armedDeleteStickerId = null;
+    photoSelected = true;
+    notifyListeners();
+  }
+
+  void clearSelections() {
+    selectedStickerId = null;
+    armedDeleteStickerId = null;
+    photoSelected = false;
+    notifyListeners();
+  }
+
+  void armStickerDelete(String stickerId) {
+    selectedStickerId = stickerId;
+    armedDeleteStickerId = stickerId;
+    notifyListeners();
+  }
+
+  void clearStickerDeleteArm() {
+    if (armedDeleteStickerId == null) return;
+    armedDeleteStickerId = null;
     notifyListeners();
   }
 
@@ -290,10 +323,12 @@ class PostcardAppController extends ChangeNotifier {
   }
 
   void beginPhotoGesture() {
+    if (!photoSelected) return;
     _gestureBaseScale = photoScale;
   }
 
   void updatePhotoGesture(double gestureScale, Offset focalDelta, Size bounds) {
+    if (!photoSelected) return;
     final width = bounds.width == 0 ? 1 : bounds.width;
     final height = bounds.height == 0 ? 1 : bounds.height;
     photoScale = (_gestureBaseScale * gestureScale).clamp(1.0, 1.9);
@@ -307,6 +342,7 @@ class PostcardAppController extends ChangeNotifier {
   void resetPhotoAdjustments() {
     photoScale = 1;
     photoOffset = Offset.zero;
+    photoSelected = false;
     notifyListeners();
   }
 
@@ -340,6 +376,8 @@ class PostcardAppController extends ChangeNotifier {
     );
     activeStickers = [...activeStickers, next];
     selectedStickerId = next.id;
+    armedDeleteStickerId = null;
+    photoSelected = false;
     notifyListeners();
   }
 
@@ -353,6 +391,8 @@ class PostcardAppController extends ChangeNotifier {
     );
     activeStickers = [...activeStickers, next];
     selectedStickerId = next.id;
+    armedDeleteStickerId = null;
+    photoSelected = false;
     notifyListeners();
   }
 
@@ -361,6 +401,20 @@ class PostcardAppController extends ChangeNotifier {
     if (selectedId == null) return;
     activeStickers = activeStickers.where((item) => item.id != selectedId).toList();
     selectedStickerId = activeStickers.isEmpty ? null : activeStickers.first.id;
+    armedDeleteStickerId = null;
+    photoSelected = false;
+    notifyListeners();
+  }
+
+  void deleteStickerById(String stickerId) {
+    activeStickers = activeStickers.where((item) => item.id != stickerId).toList();
+    selectedStickerId = selectedStickerId == stickerId
+        ? (activeStickers.isEmpty ? null : activeStickers.first.id)
+        : selectedStickerId;
+    if (armedDeleteStickerId == stickerId) {
+      armedDeleteStickerId = null;
+    }
+    photoSelected = false;
     notifyListeners();
   }
 
@@ -372,6 +426,42 @@ class PostcardAppController extends ChangeNotifier {
       final nextDx = (item.dx + delta.dx / width).clamp(0.04, 0.82);
       final nextDy = (item.dy + delta.dy / height).clamp(0.06, 0.82);
       return item.copyWith(dx: nextDx, dy: nextDy);
+    }).toList();
+    selectedStickerId = stickerId;
+    armedDeleteStickerId = null;
+    photoSelected = false;
+    notifyListeners();
+  }
+
+  void beginStickerGesture(String stickerId) {
+    StudioSticker? sticker;
+    for (final item in activeStickers) {
+      if (item.id == stickerId) {
+        sticker = item;
+        break;
+      }
+    }
+    _stickerGestureBaseScale = sticker?.scale ?? 1;
+    selectedStickerId = stickerId;
+    armedDeleteStickerId = null;
+    photoSelected = false;
+    notifyListeners();
+  }
+
+  void updateStickerGesture(
+    String stickerId,
+    double gestureScale,
+    Offset focalDelta,
+    Size bounds,
+  ) {
+    final width = bounds.width == 0 ? 1 : bounds.width;
+    final height = bounds.height == 0 ? 1 : bounds.height;
+    activeStickers = activeStickers.map((item) {
+      if (item.id != stickerId) return item;
+      final nextDx = (item.dx + focalDelta.dx / width).clamp(0.03, 0.90);
+      final nextDy = (item.dy + focalDelta.dy / height).clamp(0.04, 0.90);
+      final nextScale = (_stickerGestureBaseScale * gestureScale).clamp(0.65, 1.9);
+      return item.copyWith(dx: nextDx, dy: nextDy, scale: nextScale);
     }).toList();
     selectedStickerId = stickerId;
     notifyListeners();
@@ -540,6 +630,8 @@ class PostcardAppController extends ChangeNotifier {
       ),
     ];
     selectedStickerId = activeStickers.first.id;
+    armedDeleteStickerId = null;
+    photoSelected = false;
     selectedCatalogStickerId = stickerCatalog.isEmpty ? null : stickerCatalog.first.id;
   }
 

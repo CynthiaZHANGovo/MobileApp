@@ -28,7 +28,7 @@ class ArchivePage extends StatelessWidget {
             slivers: [
               SliverAppBar(
                 pinned: true,
-                expandedHeight: 170,
+                expandedHeight: 136,
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 flexibleSpace: FlexibleSpaceBar(
@@ -40,20 +40,7 @@ class ArchivePage extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  background: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 84, 20, 24),
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: const [
-                          _HeaderChip(label: 'Booklets by month'),
-                          _HeaderChip(label: 'Tap to open'),
-                        ],
-                      ),
-                    ),
-                  ),
+                  background: const SizedBox.shrink(),
                 ),
               ),
               SliverToBoxAdapter(
@@ -66,8 +53,6 @@ class ArchivePage extends StatelessWidget {
                           children: [
                             _overview(groups),
                             const SizedBox(height: 20),
-                            const _SectionEyebrow(label: 'Library'),
-                            const SizedBox(height: 10),
                             const Text(
                               'Monthly Booklets',
                               style: TextStyle(
@@ -242,13 +227,12 @@ class _BookletCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _BookletChip(label: '${group.cards.length} cards'),
-                      _BookletChip(label: group.cards.first.styleName),
-                    ],
+                  Text(
+                    '${group.cards.length} postcards',
+                    style: const TextStyle(
+                      color: Color(0xFF657B76),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ),
@@ -337,30 +321,6 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-class _BookletChip extends StatelessWidget {
-  const _BookletChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.82),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Color(0xFF173432),
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}
-
 class _AlbumBackground extends StatelessWidget {
   const _AlbumBackground();
 
@@ -389,57 +349,6 @@ class _AlbumBackground extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-    );
-  }
-}
-
-class _HeaderChip extends StatelessWidget {
-  const _HeaderChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.82),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Color(0xFF23413F),
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}
-
-class _SectionEyebrow extends StatelessWidget {
-  const _SectionEyebrow({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0x14000000)),
-      ),
-      child: Text(
-        label.toUpperCase(),
-        style: const TextStyle(
-          color: Color(0xFF59706B),
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 1.0,
-        ),
-      ),
     );
   }
 }
