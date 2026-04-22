@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'screens/launch_splash_page.dart';
 import 'screens/home_page.dart';
@@ -16,6 +17,87 @@ class EnvironmentalPostcardApp extends StatelessWidget {
       seedColor: const Color(0xFF2B5D57),
       brightness: Brightness.light,
     );
+    final baseTextTheme = ThemeData.light().textTheme.apply(
+      bodyColor: const Color(0xFF183433),
+      displayColor: const Color(0xFF183433),
+    );
+    final textTheme = GoogleFonts.nunitoTextTheme(baseTextTheme).copyWith(
+      displayLarge: GoogleFonts.fredoka(
+        textStyle: baseTextTheme.displayLarge,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w700,
+      ),
+      displayMedium: GoogleFonts.fredoka(
+        textStyle: baseTextTheme.displayMedium,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w700,
+      ),
+      displaySmall: GoogleFonts.fredoka(
+        textStyle: baseTextTheme.displaySmall,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w700,
+      ),
+      headlineLarge: GoogleFonts.fredoka(
+        textStyle: baseTextTheme.headlineLarge,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w700,
+      ),
+      headlineMedium: GoogleFonts.fredoka(
+        textStyle: baseTextTheme.headlineMedium,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w700,
+      ),
+      headlineSmall: GoogleFonts.fredoka(
+        textStyle: baseTextTheme.headlineSmall,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w700,
+      ),
+      titleLarge: GoogleFonts.fredoka(
+        textStyle: baseTextTheme.titleLarge,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w700,
+      ),
+      titleMedium: GoogleFonts.nunito(
+        textStyle: baseTextTheme.titleMedium,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w800,
+      ),
+      titleSmall: GoogleFonts.nunito(
+        textStyle: baseTextTheme.titleSmall,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w800,
+      ),
+      bodyLarge: GoogleFonts.nunito(
+        textStyle: baseTextTheme.bodyLarge,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w700,
+      ),
+      bodyMedium: GoogleFonts.nunito(
+        textStyle: baseTextTheme.bodyMedium,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w700,
+      ),
+      bodySmall: GoogleFonts.nunito(
+        textStyle: baseTextTheme.bodySmall,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w700,
+      ),
+      labelLarge: GoogleFonts.nunito(
+        textStyle: baseTextTheme.labelLarge,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w800,
+      ),
+      labelMedium: GoogleFonts.nunito(
+        textStyle: baseTextTheme.labelMedium,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w800,
+      ),
+      labelSmall: GoogleFonts.nunito(
+        textStyle: baseTextTheme.labelSmall,
+        color: const Color(0xFF183433),
+        fontWeight: FontWeight.w800,
+      ),
+    );
 
     return MaterialApp(
       title: 'Environmental Postcard',
@@ -24,10 +106,7 @@ class EnvironmentalPostcardApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: scheme,
         scaffoldBackgroundColor: const Color(0xFFF3E9D2),
-        textTheme: ThemeData.light().textTheme.apply(
-          bodyColor: const Color(0xFF183433),
-          displayColor: const Color(0xFF183433),
-        ),
+        textTheme: textTheme,
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
             backgroundColor: const Color(0xFF1E5751),
@@ -53,7 +132,7 @@ class EnvironmentalPostcardApp extends StatelessWidget {
           indicatorColor: const Color(0xFFE7F0EC),
           labelTextStyle: WidgetStateProperty.resolveWith((states) {
             final selected = states.contains(WidgetState.selected);
-            return TextStyle(
+            return GoogleFonts.nunito(
               color: const Color(0xFF173230),
               fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
             );

@@ -83,167 +83,166 @@ class CapturePage extends StatelessWidget {
   }
 
   Widget _heroCard() {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFF4E9D5), Color(0xFFE9E1D3), Color(0xFFDDE5DB)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x10000000),
-            blurRadius: 18,
-            offset: Offset(0, 10),
+    return SizedBox(
+      height: 208,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          const Positioned(
+            left: 4,
+            top: 12,
+            child: _Orb(size: 64, color: Color(0x22F2C86B)),
           ),
-        ],
-      ),
-      child: AspectRatio(
-        aspectRatio: 1.26,
-        child: Stack(
-          children: [
-            Positioned(
-              left: -10,
-              top: 20,
-              child: _Orb(size: 82, color: Color(0x24F4CB8E)),
-            ),
-            Positioned(
-              right: 6,
-              bottom: 10,
-              child: _Orb(size: 96, color: Color(0x22BDD8E1)),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: const [
-                      _HeroAccentIcon(
-                        icon: Icons.wb_sunny_rounded,
-                        background: Color(0xFFF6E1A7),
-                        foreground: Color(0xFFBA7C1F),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        'Capture',
-                        style: TextStyle(
-                          color: Color(0xFF173230),
-                          fontSize: 28,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      _HeroAccentIcon(
-                        icon: Icons.photo_camera_outlined,
-                        background: Color(0xFFDCE8E4),
-                        foreground: Color(0xFF46655F),
-                      ),
-                    ],
+          const Positioned(
+            right: 20,
+            top: 26,
+            child: _Orb(size: 26, color: Color(0x20FFF8DF)),
+          ),
+          const Positioned(
+            right: -8,
+            bottom: 34,
+            child: _Orb(size: 72, color: Color(0x20A6D0DB)),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 12,
+            child: Container(
+              height: 170,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF83BDD5),
+                    Color(0xFFE4C668),
+                    Color(0xFFF0E0AF),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x16000000),
+                    blurRadius: 18,
+                    offset: Offset(0, 10),
                   ),
-                  const SizedBox(height: 18),
-                  Expanded(
+                ],
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 28,
+                    top: 18,
                     child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFFC6D7D4),
-                            Color(0xFFB5CAC6),
-                            Color(0xFFBFD4D8),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(32),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x14000000),
-                            blurRadius: 18,
-                            offset: Offset(0, 10),
-                          ),
-                        ],
+                      width: 66,
+                      height: 66,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0x32FFFFFF),
                       ),
-                      child: Stack(
-                        children: [
-                          const Positioned(
-                            left: 20,
-                            top: 16,
-                            child: _Orb(size: 70, color: Color(0x2EFFF8E9)),
+                    ),
+                  ),
+                  Positioned(
+                    left: 78,
+                    top: 26,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.18),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.24),
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 28,
+                    top: 24,
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0x30FFF3C2),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: 114,
+                    bottom: 40,
+                    child: Transform.rotate(
+                      angle: -0.26,
+                      child: Container(
+                        width: 78,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.24),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        _HeroAccentIcon(
+                          icon: Icons.wb_sunny_rounded,
+                          background: Color(0xFFF6E1A7),
+                          foreground: Color(0xFFBA7C1F),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Capture',
+                          style: TextStyle(
+                            color: Color(0xFF173230),
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.5,
                           ),
-                          const Positioned(
-                            right: 16,
-                            bottom: 18,
-                            child: _Orb(size: 88, color: Color(0x26FFF5DA)),
-                          ),
-                          const Positioned(
-                            right: 28,
-                            top: 28,
-                            child: _Orb(size: 34, color: Color(0x34FFFFFF)),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0x3DFFFFFF),
-                                borderRadius: BorderRadius.circular(28),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.55),
-                                  width: 1.2,
-                                ),
-                              ),
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                    left: 16,
-                                    right: 16,
-                                    top: 16,
-                                    child: Row(
-                                      children: List.generate(10, (index) {
-                                        final color = index.isEven
-                                            ? const Color(0xFFD96A60)
-                                            : const Color(0xFF6D9AB7);
-                                        return Expanded(
-                                          child: Container(
-                                            height: 4,
-                                            color: color,
-                                          ),
-                                        );
-                                      }),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: const [
-                                        Icon(
-                                          Icons.add_photo_alternate_outlined,
-                                          size: 38,
-                                          color: Color(0xFF4E6762),
-                                        ),
-                                        SizedBox(height: 12),
-                                        _FrameHintLine(width: 130),
-                                        SizedBox(height: 8),
-                                        _FrameHintLine(width: 88),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
+                        SizedBox(width: 10),
+                        _HeroAccentIcon(
+                          icon: Icons.photo_camera_outlined,
+                          background: Color(0xFFDCE8E4),
+                          foreground: Color(0xFF46655F),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    left: 164,
+                    bottom: 10,
+                    child: Container(
+                      width: 142,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.50),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: 212,
+                    bottom: 30,
+                    child: Container(
+                      width: 94,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.42),
+                        borderRadius: BorderRadius.circular(999),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -331,24 +330,6 @@ class _HeroAccentIcon extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: foreground, size: 18),
-    );
-  }
-}
-
-class _FrameHintLine extends StatelessWidget {
-  const _FrameHintLine({required this.width});
-
-  final double width;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: 10,
-      decoration: BoxDecoration(
-        color: const Color(0x40FFFFFF),
-        borderRadius: BorderRadius.circular(999),
-      ),
     );
   }
 }

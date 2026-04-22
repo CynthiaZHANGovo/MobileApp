@@ -57,9 +57,7 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> with SingleTickerProv
     final dateText = parsedDate == null ? 'Today' : DateFormat('MMMM d, yyyy').format(parsedDate);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
+      body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFF4EAD5), Color(0xFFE7E1D4), Color(0xFFDDE5DA)],
@@ -100,42 +98,112 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> with SingleTickerProv
               const SizedBox(height: 18),
               SizedBox(
                 height: 420,
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: _cards.length,
-                  onPageChanged: (value) {
-                    setState(() {
-                      _index = value;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    final item = _cards[index];
-                    final path = item.renderedImagePath.isNotEmpty ? item.renderedImagePath : item.imagePath;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8F3E6),
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x17000000),
-                              blurRadius: 22,
-                              offset: Offset(0, 12),
+                child: Stack(
+                  children: [
+                    PageView.builder(
+                      controller: _pageController,
+                      itemCount: _cards.length,
+                      onPageChanged: (value) {
+                        setState(() {
+                          _index = value;
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        final item = _cards[index];
+                        final path =
+                            item.renderedImagePath.isNotEmpty ? item.renderedImagePath : item.imagePath;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8F3E6),
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color(0x17000000),
+                                  blurRadius: 22,
+                                  offset: Offset(0, 12),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(22),
-                          child: Image.file(
-                            File(path),
-                            fit: BoxFit.cover,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(22),
+                              child: Image.file(
+                                File(path),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                        ),
+                        );
+                      },
+                    ),
+                    IgnorePointer(
+                      ignoring: true,
+                      child: AnimatedBuilder(
+                        animation: _openController,
+                        builder: (context, child) {
+                          final value = Curves.easeInOutCubic.transform(_openController.value);
+                          if (value >= 0.995) {
+                            return const SizedBox.shrink();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: FractionallySizedBox(
+                                widthFactor: 0.88,
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF4E7D1),
+                                        borderRadius: BorderRadius.circular(30),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Color(0x15000000),
+                                            blurRadius: 20,
+                                            offset: Offset(0, 12),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Positioned(
+                                      left: 16,
+                                      top: 16,
+                                      bottom: 16,
+                                      child: Container(
+                                        width: 14,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFD1B180),
+                                          borderRadius: BorderRadius.circular(18),
+                                        ),
+                                      ),
+                                    ),
+                                    Transform(
+                                      alignment: Alignment.centerLeft,
+                                      transform: Matrix4.identity()
+                                        ..setEntry(3, 2, 0.00125)
+                                        ..translateByDouble(-18.0 * value, 0.0, 0.0, 1.0)
+                                        ..rotateY(1.46 * value)
+                                        ..scaleByDouble(
+                                          1.0 + (0.05 * value),
+                                          1.0 + (0.05 * value),
+                                          1.0,
+                                          1.0,
+                                        ),
+                                      child: _BookletCoverSheet(progress: value),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 14),
@@ -252,74 +320,6 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> with SingleTickerProv
           ),
         ),
       ),
-          IgnorePointer(
-            ignoring: true,
-            child: AnimatedBuilder(
-              animation: _openController,
-              builder: (context, child) {
-                final value = Curves.easeInOutCubic.transform(_openController.value);
-                final overlayOpacity = (1 - value).clamp(0.0, 1.0).toDouble();
-                if (overlayOpacity <= 0.001) {
-                  return const SizedBox.shrink();
-                }
-                final rightTilt = -1.62 * value;
-                final leftSlide = -44.0 * value;
-                final sheenOpacity = (0.28 * (1 - value)).clamp(0.0, 0.28).toDouble();
-                return Positioned.fill(
-                  child: Opacity(
-                    opacity: overlayOpacity,
-                    child: Stack(
-                      children: [
-                        Container(color: const Color(0xFFF1E7D5)),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Transform.translate(
-                                offset: Offset(leftSlide, 0),
-                                child: _BookOpenHalf(
-                                  isLeft: true,
-                                  shadowOpacity: 0.08 + (0.10 * (1 - value)),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Transform(
-                                alignment: Alignment.centerLeft,
-                                transform: Matrix4.identity()
-                                  ..setEntry(3, 2, 0.0015)
-                                  ..rotateY(rightTilt),
-                                child: _BookOpenHalf(
-                                  isLeft: false,
-                                  shadowOpacity: 0.16 + (0.10 * (1 - value)),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Positioned.fill(
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Color(0x00FFFFFF),
-                                  Color(0xFFFFFFFF).withValues(alpha: sheenOpacity),
-                                  Color(0x00FFFFFF),
-                                ],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -391,83 +391,132 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> with SingleTickerProv
   }
 }
 
-class _BookOpenHalf extends StatelessWidget {
-  const _BookOpenHalf({
-    required this.isLeft,
-    required this.shadowOpacity,
-  });
+class _BookletCoverSheet extends StatelessWidget {
+  const _BookletCoverSheet({required this.progress});
 
-  final bool isLeft;
-  final double shadowOpacity;
+  final double progress;
 
   @override
   Widget build(BuildContext context) {
-    final spineColor = isLeft ? const Color(0xFFCCB08A) : const Color(0xFFD8C1A1);
+    final highlight = (0.26 * (1 - progress)).clamp(0.06, 0.26).toDouble();
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 36),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isLeft
-              ? const [Color(0xFFF8F0E0), Color(0xFFF1E5D0)]
-              : const [Color(0xFFF4E7D0), Color(0xFFE9D6B8)],
-          begin: isLeft ? Alignment.centerRight : Alignment.centerLeft,
-          end: isLeft ? Alignment.centerLeft : Alignment.centerRight,
+        gradient: const LinearGradient(
+          colors: [Color(0xFFF7F1E1), Color(0xFFEEE5D3)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        boxShadow: [
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withValues(alpha: shadowOpacity),
-            blurRadius: 20,
-            offset: Offset(isLeft ? -4 : 8, 8),
+            color: Color(0x12000000),
+            blurRadius: 18,
+            offset: Offset(0, 10),
           ),
         ],
       ),
       child: Stack(
         children: [
           Positioned(
-            top: 0,
-            bottom: 0,
-            right: isLeft ? 0 : null,
-            left: isLeft ? null : 0,
+            left: 0,
+            top: 18,
+            bottom: 18,
             child: Container(
-              width: 10,
+              width: 18,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    spineColor.withValues(alpha: 0.25),
-                    spineColor.withValues(alpha: 0.88),
-                    spineColor.withValues(alpha: 0.25),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
+                color: const Color(0xFFD4B37E),
+                borderRadius: BorderRadius.circular(18),
               ),
             ),
           ),
-          Positioned(
-            top: 46,
-            left: isLeft ? 28 : 22,
-            right: isLeft ? 22 : 28,
-            child: Container(
-              height: 1.2,
-              color: const Color(0x26A7885D),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(30, 18, 18, 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        const DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFFE7DCC8), Color(0xFFD8C9B1)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                        ),
+                        GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(6),
+                          itemCount: 4,
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 6,
+                            crossAxisSpacing: 6,
+                          ),
+                          itemBuilder: (context, index) {
+                            final colors = [
+                              const [Color(0xFFD67B5D), Color(0xFFEBBF8C)],
+                              const [Color(0xFF7CB0C4), Color(0xFFDDECF1)],
+                              const [Color(0xFF89A67C), Color(0xFFE5E7C8)],
+                              const [Color(0xFFCDA77F), Color(0xFFF3E7CC)],
+                            ];
+                            final pair = colors[index];
+                            return DecoratedBox(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                gradient: LinearGradient(
+                                  colors: pair,
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  width: 140,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD9CCB8),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  width: 96,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE7DBCB),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ],
             ),
           ),
-          Positioned(
-            top: 74,
-            left: isLeft ? 28 : 22,
-            right: isLeft ? 22 : 28,
-            child: Container(
-              height: 1.2,
-              color: const Color(0x20A7885D),
-            ),
-          ),
-          Positioned(
-            bottom: 62,
-            left: isLeft ? 28 : 22,
-            right: isLeft ? 22 : 28,
-            child: Container(
-              height: 1.2,
-              color: const Color(0x18A7885D),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFFFFFFFF).withValues(alpha: highlight),
+                    const Color(0x00FFFFFF),
+                    Color(0xFF8B6A40).withValues(alpha: 0.08 * progress),
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+              ),
             ),
           ),
         ],
