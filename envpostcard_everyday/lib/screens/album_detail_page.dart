@@ -22,8 +22,9 @@ class AlbumDetailPage extends StatefulWidget {
   State<AlbumDetailPage> createState() => _AlbumDetailPageState();
 }
 
-class _AlbumDetailPageState extends State<AlbumDetailPage> {
+class _AlbumDetailPageState extends State<AlbumDetailPage> with SingleTickerProviderStateMixin {
   late final PageController _pageController;
+  late final AnimationController _openController;
   late List<PostcardContent> _cards;
   int _index = 0;
 
@@ -32,10 +33,15 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
     super.initState();
     _cards = List<PostcardContent>.from(widget.cards);
     _pageController = PageController(viewportFraction: 0.88);
+    _openController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 980),
+    )..forward();
   }
 
   @override
   void dispose() {
+    _openController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -51,7 +57,9 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
     final dateText = parsedDate == null ? 'Today' : DateFormat('MMMM d, yyyy').format(parsedDate);
 
     return Scaffold(
-      body: Container(
+      body: Stack(
+        children: [
+          Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFF4EAD5), Color(0xFFE7E1D4), Color(0xFFDDE5DA)],
@@ -244,6 +252,74 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
           ),
         ),
       ),
+          IgnorePointer(
+            ignoring: true,
+            child: AnimatedBuilder(
+              animation: _openController,
+              builder: (context, child) {
+                final value = Curves.easeInOutCubic.transform(_openController.value);
+                final overlayOpacity = (1 - value).clamp(0.0, 1.0).toDouble();
+                if (overlayOpacity <= 0.001) {
+                  return const SizedBox.shrink();
+                }
+                final rightTilt = -1.62 * value;
+                final leftSlide = -44.0 * value;
+                final sheenOpacity = (0.28 * (1 - value)).clamp(0.0, 0.28).toDouble();
+                return Positioned.fill(
+                  child: Opacity(
+                    opacity: overlayOpacity,
+                    child: Stack(
+                      children: [
+                        Container(color: const Color(0xFFF1E7D5)),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Transform.translate(
+                                offset: Offset(leftSlide, 0),
+                                child: _BookOpenHalf(
+                                  isLeft: true,
+                                  shadowOpacity: 0.08 + (0.10 * (1 - value)),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Transform(
+                                alignment: Alignment.centerLeft,
+                                transform: Matrix4.identity()
+                                  ..setEntry(3, 2, 0.0015)
+                                  ..rotateY(rightTilt),
+                                child: _BookOpenHalf(
+                                  isLeft: false,
+                                  shadowOpacity: 0.16 + (0.10 * (1 - value)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Positioned.fill(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color(0x00FFFFFF),
+                                  Color(0xFFFFFFFF).withValues(alpha: sheenOpacity),
+                                  Color(0x00FFFFFF),
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -310,6 +386,91 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
           fontWeight: FontWeight.w800,
           letterSpacing: 1.0,
         ),
+      ),
+    );
+  }
+}
+
+class _BookOpenHalf extends StatelessWidget {
+  const _BookOpenHalf({
+    required this.isLeft,
+    required this.shadowOpacity,
+  });
+
+  final bool isLeft;
+  final double shadowOpacity;
+
+  @override
+  Widget build(BuildContext context) {
+    final spineColor = isLeft ? const Color(0xFFCCB08A) : const Color(0xFFD8C1A1);
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 36),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isLeft
+              ? const [Color(0xFFF8F0E0), Color(0xFFF1E5D0)]
+              : const [Color(0xFFF4E7D0), Color(0xFFE9D6B8)],
+          begin: isLeft ? Alignment.centerRight : Alignment.centerLeft,
+          end: isLeft ? Alignment.centerLeft : Alignment.centerRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: shadowOpacity),
+            blurRadius: 20,
+            offset: Offset(isLeft ? -4 : 8, 8),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            bottom: 0,
+            right: isLeft ? 0 : null,
+            left: isLeft ? null : 0,
+            child: Container(
+              width: 10,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    spineColor.withValues(alpha: 0.25),
+                    spineColor.withValues(alpha: 0.88),
+                    spineColor.withValues(alpha: 0.25),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 46,
+            left: isLeft ? 28 : 22,
+            right: isLeft ? 22 : 28,
+            child: Container(
+              height: 1.2,
+              color: const Color(0x26A7885D),
+            ),
+          ),
+          Positioned(
+            top: 74,
+            left: isLeft ? 28 : 22,
+            right: isLeft ? 22 : 28,
+            child: Container(
+              height: 1.2,
+              color: const Color(0x20A7885D),
+            ),
+          ),
+          Positioned(
+            bottom: 62,
+            left: isLeft ? 28 : 22,
+            right: isLeft ? 22 : 28,
+            child: Container(
+              height: 1.2,
+              color: const Color(0x18A7885D),
+            ),
+          ),
+        ],
       ),
     );
   }

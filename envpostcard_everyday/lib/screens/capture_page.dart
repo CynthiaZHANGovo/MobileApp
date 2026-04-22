@@ -87,57 +87,159 @@ class CapturePage extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF153735), Color(0xFF386C63)],
+          colors: [Color(0xFFF4E9D5), Color(0xFFE9E1D3), Color(0xFFDDE5DB)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x10000000),
+            blurRadius: 18,
+            offset: Offset(0, 10),
+          ),
+        ],
       ),
-      child: const AspectRatio(
-        aspectRatio: 1.8,
+      child: AspectRatio(
+        aspectRatio: 1.26,
         child: Stack(
           children: [
             Positioned(
-              left: 0,
-              top: 0,
-              child: _Orb(size: 86, color: Color(0x33FFF6D8)),
+              left: -10,
+              top: 20,
+              child: _Orb(size: 82, color: Color(0x24F4CB8E)),
             ),
             Positioned(
-              right: 24,
-              top: 12,
-              child: _Orb(size: 34, color: Color(0x40FFFFFF)),
+              right: 6,
+              bottom: 10,
+              child: _Orb(size: 96, color: Color(0x22BDD8E1)),
             ),
-            Positioned(
-              right: 0,
-              bottom: 6,
-              child: _Orb(size: 108, color: Color(0x26F7C67D)),
-            ),
-            Positioned(
-              left: 26,
-              bottom: 20,
-              child: Icon(Icons.photo_camera_rounded, color: Colors.white, size: 34),
-            ),
-            Positioned(
-              left: 84,
-              bottom: 18,
-              child: Icon(Icons.wb_sunny_rounded, color: Color(0xFFFCE9AA), size: 22),
-            ),
-            Positioned(
-              left: 118,
-              bottom: 18,
-              child: Icon(Icons.air_rounded, color: Color(0xD7FFFFFF), size: 22),
-            ),
-            Positioned(
-              left: 24,
-              top: 22,
-              child: Text(
-                'Capture',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  height: 1.0,
-                ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: const [
+                      _HeroAccentIcon(
+                        icon: Icons.wb_sunny_rounded,
+                        background: Color(0xFFF6E1A7),
+                        foreground: Color(0xFFBA7C1F),
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        'Capture',
+                        style: TextStyle(
+                          color: Color(0xFF173230),
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      _HeroAccentIcon(
+                        icon: Icons.photo_camera_outlined,
+                        background: Color(0xFFDCE8E4),
+                        foreground: Color(0xFF46655F),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFFC6D7D4),
+                            Color(0xFFB5CAC6),
+                            Color(0xFFBFD4D8),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(32),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x14000000),
+                            blurRadius: 18,
+                            offset: Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          const Positioned(
+                            left: 20,
+                            top: 16,
+                            child: _Orb(size: 70, color: Color(0x2EFFF8E9)),
+                          ),
+                          const Positioned(
+                            right: 16,
+                            bottom: 18,
+                            child: _Orb(size: 88, color: Color(0x26FFF5DA)),
+                          ),
+                          const Positioned(
+                            right: 28,
+                            top: 28,
+                            child: _Orb(size: 34, color: Color(0x34FFFFFF)),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0x3DFFFFFF),
+                                borderRadius: BorderRadius.circular(28),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.55),
+                                  width: 1.2,
+                                ),
+                              ),
+                              child: Stack(
+                                children: [
+                                  Positioned(
+                                    left: 16,
+                                    right: 16,
+                                    top: 16,
+                                    child: Row(
+                                      children: List.generate(10, (index) {
+                                        final color = index.isEven
+                                            ? const Color(0xFFD96A60)
+                                            : const Color(0xFF6D9AB7);
+                                        return Expanded(
+                                          child: Container(
+                                            height: 4,
+                                            color: color,
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                  ),
+                                  Center(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: const [
+                                        Icon(
+                                          Icons.add_photo_alternate_outlined,
+                                          size: 38,
+                                          color: Color(0xFF4E6762),
+                                        ),
+                                        SizedBox(height: 12),
+                                        _FrameHintLine(width: 130),
+                                        SizedBox(height: 8),
+                                        _FrameHintLine(width: 88),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -203,6 +305,49 @@ class _Orb extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
+      ),
+    );
+  }
+}
+
+class _HeroAccentIcon extends StatelessWidget {
+  const _HeroAccentIcon({
+    required this.icon,
+    required this.background,
+    required this.foreground,
+  });
+
+  final IconData icon;
+  final Color background;
+  final Color foreground;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+        color: background,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, color: foreground, size: 18),
+    );
+  }
+}
+
+class _FrameHintLine extends StatelessWidget {
+  const _FrameHintLine({required this.width});
+
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: 10,
+      decoration: BoxDecoration(
+        color: const Color(0x40FFFFFF),
+        borderRadius: BorderRadius.circular(999),
       ),
     );
   }

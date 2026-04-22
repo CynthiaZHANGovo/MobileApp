@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'screens/launch_splash_page.dart';
 import 'screens/home_page.dart';
 
 void main() {
@@ -59,7 +60,34 @@ class EnvironmentalPostcardApp extends StatelessWidget {
           }),
         ),
       ),
-      home: const HomePage(),
+      home: const _AppEntryPoint(),
     );
+  }
+}
+
+class _AppEntryPoint extends StatefulWidget {
+  const _AppEntryPoint();
+
+  @override
+  State<_AppEntryPoint> createState() => _AppEntryPointState();
+}
+
+class _AppEntryPointState extends State<_AppEntryPoint> {
+  bool _showSplash = true;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_showSplash) {
+      return LaunchSplashPage(
+        onFinished: () {
+          if (!mounted) return;
+          setState(() {
+            _showSplash = false;
+          });
+        },
+      );
+    }
+
+    return const HomePage();
   }
 }

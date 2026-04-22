@@ -77,12 +77,25 @@ class ArchivePage extends StatelessWidget {
                                         group: group,
                                         onTap: () async {
                                           await Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (_) => AlbumDetailPage(
+                                            PageRouteBuilder<void>(
+                                              transitionDuration: const Duration(milliseconds: 260),
+                                              reverseTransitionDuration: const Duration(milliseconds: 220),
+                                              pageBuilder: (context, animation, secondaryAnimation) => AlbumDetailPage(
                                                 controller: controller,
                                                 groupLabel: group.label,
                                                 cards: group.cards,
                                               ),
+                                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                                final curved = CurvedAnimation(
+                                                  parent: animation,
+                                                  curve: Curves.easeOut,
+                                                  reverseCurve: Curves.easeIn,
+                                                );
+                                                return FadeTransition(
+                                                  opacity: curved,
+                                                  child: child,
+                                                );
+                                              },
                                             ),
                                           );
                                         },
@@ -118,11 +131,17 @@ class ArchivePage extends StatelessWidget {
 
   Widget _overview(List<_AlbumGroup> groups) {
     final totalCards = groups.fold<int>(0, (sum, group) => sum + group.cards.length);
+    final latestLabel = groups.first.label;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(28),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFF9F3E6), Color(0xFFF1E7D8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.55)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x10000000),
@@ -135,9 +154,22 @@ class ArchivePage extends StatelessWidget {
         spacing: 10,
         runSpacing: 10,
         children: [
-          _StatCard(value: '${groups.length}', label: 'Booklets'),
-          _StatCard(value: '$totalCards', label: 'Postcards'),
-          _StatCard(value: groups.first.label, label: 'Latest'),
+          _StatPill(
+            icon: Icons.menu_book_rounded,
+            value: '${groups.length}',
+            label: 'Booklets',
+          ),
+          _StatPill(
+            icon: Icons.photo_library_rounded,
+            value: '$totalCards',
+            label: 'Postcards',
+          ),
+          _StatPill(
+            icon: Icons.schedule_rounded,
+            value: latestLabel,
+            label: 'Latest',
+            wide: true,
+          ),
         ],
       ),
     );
@@ -278,41 +310,70 @@ class _CoverCollage extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  const _StatCard({required this.value, required this.label});
+class _StatPill extends StatelessWidget {
+  const _StatPill({
+    required this.icon,
+    required this.value,
+    required this.label,
+    this.wide = false,
+  });
 
+  final IconData icon;
   final String value;
   final String label;
+  final bool wide;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 132,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8F3E6),
-        borderRadius: BorderRadius.circular(18),
+      constraints: BoxConstraints(
+        minWidth: wide ? 180 : 132,
+        maxWidth: wide ? 220 : 150,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.70),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.42)),
+      ),
+      child: Row(
         children: [
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Color(0xFF173230),
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF4E7CF),
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: Icon(icon, size: 18, color: const Color(0xFF173230)),
           ),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF60726E),
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF60726E),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 11,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF173230),
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

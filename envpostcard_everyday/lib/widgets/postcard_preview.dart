@@ -57,7 +57,7 @@ class PostcardPreview extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final scale = (width / 340).clamp(0.80, 1.06);
+        final scale = (width / 340).clamp(0.74, 1.03);
 
         return AspectRatio(
           aspectRatio: 0.78,
@@ -227,6 +227,7 @@ class PostcardPreview extends StatelessWidget {
   }
 
   Widget _buildGridLayout(double scale) {
+    final compact = scale < 0.86;
     return Column(
       children: [
         Expanded(
@@ -239,19 +240,33 @@ class PostcardPreview extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 12 * scale),
+        SizedBox(height: (compact ? 8 : 12) * scale),
         Expanded(
           flex: 7,
           child: Row(
             children: [
               Expanded(child: _messagePanel(scale, compact: true)),
-              SizedBox(width: 10 * scale),
+              SizedBox(width: (compact ? 8 : 10) * scale),
               Expanded(
                 child: Column(
                   children: [
-                    Expanded(child: _infoTile('AIR', card.aqiLabel, scale)),
-                    SizedBox(height: 10 * scale),
-                    Expanded(child: _infoTile('PLACE', card.locationLabel, scale)),
+                    Expanded(
+                      child: _infoTile(
+                        'AIR',
+                        card.aqiLabel,
+                        scale,
+                        compact: compact,
+                      ),
+                    ),
+                    SizedBox(height: (compact ? 8 : 10) * scale),
+                    Expanded(
+                      child: _infoTile(
+                        'PLACE',
+                        card.locationLabel,
+                        scale,
+                        compact: compact,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -263,6 +278,7 @@ class PostcardPreview extends StatelessWidget {
   }
 
   Widget _buildBorderLayout(double scale) {
+    final compact = scale < 0.86;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.58),
@@ -280,12 +296,12 @@ class PostcardPreview extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 12 * scale),
+          SizedBox(height: (compact ? 9 : 12) * scale),
           Expanded(
             flex: 7,
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.all(16 * scale),
+              padding: EdgeInsets.all((compact ? 13 : 16) * scale),
               decoration: BoxDecoration(
                 color: variant.textPanelColor,
                 borderRadius: BorderRadius.circular(18 * scale),
@@ -293,51 +309,81 @@ class PostcardPreview extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          variant.name,
-                          maxLines: 2,
-                          softWrap: true,
-                          overflow: TextOverflow.fade,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF18312F),
-                            fontSize: 12.5 * scale,
-                            height: 1.05,
+                  if (compact) ...[
+                    Text(
+                      variant.name,
+                      maxLines: 2,
+                      softWrap: true,
+                      overflow: TextOverflow.fade,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF18312F),
+                        fontSize: 11.6 * scale,
+                        height: 1.05,
+                      ),
+                    ),
+                    SizedBox(height: 4 * scale),
+                    Text(
+                      'Future Self',
+                      style: TextStyle(
+                        color: variant.accentColor,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 10.6 * scale,
+                      ),
+                    ),
+                  ] else
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            variant.name,
+                            maxLines: 2,
+                            softWrap: true,
+                            overflow: TextOverflow.fade,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF18312F),
+                              fontSize: 12.5 * scale,
+                              height: 1.05,
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: 8 * scale),
-                      Text(
-                        'Future Self',
-                        style: TextStyle(
-                          color: variant.accentColor,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 11.5 * scale,
+                        SizedBox(width: 8 * scale),
+                        Text(
+                          'Future Self',
+                          style: TextStyle(
+                            color: variant.accentColor,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 11.5 * scale,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10 * scale),
+                      ],
+                    ),
+                  SizedBox(height: (compact ? 7 : 10) * scale),
                   Expanded(
-                    child: Text(
-                      card.message,
-                      maxLines: 7,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14.5 * scale,
-                        height: 1.55,
-                        color: const Color(0xFF18312F),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        card.message,
+                        maxLines: compact ? 6 : 7,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: (compact ? 12.8 : 14.5) * scale,
+                          height: compact ? 1.46 : 1.55,
+                          color: const Color(0xFF18312F),
+                        ),
                       ),
                     ),
                   ),
+                  SizedBox(height: 4 * scale),
                   Text(
                     '${card.locationLabel}  •  ${card.temperatureText}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: const Color(0xFF5C716D), fontSize: 11.5 * scale),
+                    style: TextStyle(
+                      color: const Color(0xFF5C716D),
+                      fontSize: (compact ? 10.6 : 11.5) * scale,
+                    ),
                   ),
                 ],
               ),
@@ -349,7 +395,7 @@ class PostcardPreview extends StatelessWidget {
   }
 
   Widget _buildSplitLayout(double scale) {
-    if (scale < 0.9) {
+    if (scale < 0.92) {
       return Container(
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.88),
@@ -359,11 +405,11 @@ class PostcardPreview extends StatelessWidget {
         child: Column(
           children: [
             Expanded(flex: 11, child: _buildFilteredPhoto(16 * scale)),
-            SizedBox(height: 10 * scale),
+            SizedBox(height: 8 * scale),
             Expanded(
               flex: 9,
               child: Container(
-                padding: EdgeInsets.all(12 * scale),
+                padding: EdgeInsets.all(11 * scale),
                 decoration: BoxDecoration(
                   color: variant.textPanelColor,
                   borderRadius: BorderRadius.circular(16 * scale),
@@ -393,27 +439,30 @@ class PostcardPreview extends StatelessWidget {
                         _miniBadge(variant.stampLabel, scale),
                       ],
                     ),
-                    SizedBox(height: 8 * scale),
+                    SizedBox(height: 6 * scale),
                     Expanded(
-                      child: Text(
-                        card.message,
-                        maxLines: 6,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: const Color(0xFF173230),
-                          height: 1.48,
-                          fontSize: 12.5 * scale,
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          card.message,
+                          maxLines: 5,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: const Color(0xFF173230),
+                            height: 1.42,
+                            fontSize: 11.8 * scale,
+                          ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 6 * scale),
+                    SizedBox(height: 4 * scale),
                     Text(
                       card.locationLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: const Color(0xFF536966), fontSize: 10.8 * scale),
                     ),
-                    SizedBox(height: 4 * scale),
+                    SizedBox(height: 3 * scale),
                     Text(
                       '${card.weatherLabel} • ${card.temperatureText}',
                       maxLines: 1,
@@ -463,29 +512,32 @@ class PostcardPreview extends StatelessWidget {
                     _miniBadge(variant.stampLabel, scale),
                   ],
                 ),
-                SizedBox(height: 12 * scale),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.all(14 * scale),
-                      decoration: BoxDecoration(
-                        color: variant.textPanelColor,
-                        borderRadius: BorderRadius.circular(18 * scale),
-                      ),
+                SizedBox(height: 10 * scale),
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.all(13 * scale),
+                    decoration: BoxDecoration(
+                      color: variant.textPanelColor,
+                      borderRadius: BorderRadius.circular(18 * scale),
+                    ),
+                    child: Align(
+                      alignment: Alignment.topLeft,
                       child: Text(
                         card.message,
-                        maxLines: 8,
+                        maxLines: 7,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: const Color(0xFF173230),
-                          height: 1.6,
-                        fontSize: 13.5 * scale,
+                          height: 1.5,
+                          fontSize: 12.7 * scale,
+                        ),
                       ),
                     ),
                   ),
                 ),
-                SizedBox(height: 12 * scale),
-                Container(height: 1, color: const Color(0xFFD9CFBC)),
                 SizedBox(height: 10 * scale),
+                Container(height: 1, color: const Color(0xFFD9CFBC)),
+                SizedBox(height: 8 * scale),
                 Text(
                   'To: Future Me',
                   style: TextStyle(
@@ -494,14 +546,14 @@ class PostcardPreview extends StatelessWidget {
                     fontSize: 12 * scale,
                   ),
                 ),
-                SizedBox(height: 6 * scale),
+                SizedBox(height: 5 * scale),
                 Text(
                   card.locationLabel,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: const Color(0xFF536966), fontSize: 11.5 * scale),
                 ),
-                SizedBox(height: 4 * scale),
+                SizedBox(height: 3 * scale),
                 Text(
                   '${card.weatherLabel} • ${card.temperatureText}',
                   maxLines: 1,
@@ -517,12 +569,18 @@ class PostcardPreview extends StatelessWidget {
   }
 
   Widget _buildPolaroidLayout(double scale) {
+    final compact = scale < 0.86;
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF8F4EB),
         borderRadius: BorderRadius.circular(24 * scale),
       ),
-      padding: EdgeInsets.fromLTRB(14 * scale, 14 * scale, 14 * scale, 18 * scale),
+      padding: EdgeInsets.fromLTRB(
+        (compact ? 12 : 14) * scale,
+        (compact ? 12 : 14) * scale,
+        (compact ? 12 : 14) * scale,
+        (compact ? 15 : 18) * scale,
+      ),
       child: Column(
         children: [
           Expanded(
@@ -534,12 +592,12 @@ class PostcardPreview extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16 * scale),
+          SizedBox(height: (compact ? 11 : 16) * scale),
           Expanded(
             flex: 6,
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.all(16 * scale),
+              padding: EdgeInsets.all((compact ? 12 : 16) * scale),
               decoration: BoxDecoration(
                 color: variant.textPanelColor,
                 borderRadius: BorderRadius.circular(16 * scale),
@@ -547,23 +605,28 @@ class PostcardPreview extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    card.message,
-                    maxLines: scale < 0.9 ? 4 : 5,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: const Color(0xFF173230),
-                      height: 1.5,
-                      fontSize: 13.2 * scale,
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        card.message,
+                        maxLines: compact ? 4 : 5,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: const Color(0xFF173230),
+                          height: compact ? 1.42 : 1.5,
+                          fontSize: (compact ? 12.0 : 13.2) * scale,
+                        ),
+                      ),
                     ),
                   ),
-                  const Spacer(),
+                  SizedBox(height: 8 * scale),
                   Row(
                     children: [
-                      ...card.stickerLabels.take(scale < 0.9 ? 1 : 2).map((item) {
+                      ...card.stickerLabels.take(compact ? 1 : 2).map((item) {
                         return Padding(
-                          padding: EdgeInsets.only(right: 8 * scale),
-                          child: _miniBadge(item, scale),
+                          padding: EdgeInsets.only(right: 6 * scale),
+                          child: _miniBadge(item, compact ? scale * 0.94 : scale),
                         );
                       }),
                       const Spacer(),
@@ -576,7 +639,7 @@ class PostcardPreview extends StatelessWidget {
                           style: TextStyle(
                             color: variant.accentColor,
                             fontWeight: FontWeight.w800,
-                            fontSize: 10.0 * scale,
+                            fontSize: (compact ? 9.4 : 10.0) * scale,
                           ),
                         ),
                       ),
@@ -651,8 +714,9 @@ class PostcardPreview extends StatelessWidget {
   }
 
   Widget _messagePanel(double scale, {required bool compact}) {
+    final dense = scale < 0.86;
     return Container(
-      padding: EdgeInsets.all((compact ? 14 : 16) * scale),
+      padding: EdgeInsets.all((compact ? (dense ? 11 : 14) : (dense ? 13 : 16)) * scale),
       decoration: BoxDecoration(
         color: variant.textPanelColor,
         borderRadius: BorderRadius.circular(20 * scale),
@@ -661,44 +725,71 @@ class PostcardPreview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  variant.name,
-                  maxLines: 2,
-                  softWrap: true,
-                  overflow: TextOverflow.fade,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF162D2A),
-                    fontSize: 12.4 * scale,
-                    height: 1.05,
+          if (dense) ...[
+            Text(
+              variant.name,
+              maxLines: 2,
+              softWrap: true,
+              overflow: TextOverflow.fade,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF162D2A),
+                fontSize: 11.1 * scale,
+                height: 1.04,
+              ),
+            ),
+            SizedBox(height: 2 * scale),
+            Text(
+              'POSTCARD',
+              style: TextStyle(
+                fontSize: 9.0 * scale,
+                letterSpacing: 0.8,
+                color: variant.accentColor,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ] else
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    variant.name,
+                    maxLines: 2,
+                    softWrap: true,
+                    overflow: TextOverflow.fade,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF162D2A),
+                      fontSize: 12.4 * scale,
+                      height: 1.05,
+                    ),
                   ),
                 ),
-              ),
-              Text(
-                'POSTCARD',
-                style: TextStyle(
-                  fontSize: 10 * scale,
-                  letterSpacing: 1.1,
-                  color: variant.accentColor,
-                  fontWeight: FontWeight.w800,
+                Text(
+                  'POSTCARD',
+                  style: TextStyle(
+                    fontSize: 10 * scale,
+                    letterSpacing: 1.1,
+                    color: variant.accentColor,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8 * scale),
+              ],
+            ),
+          SizedBox(height: (dense ? 5 : 8) * scale),
           Expanded(
-            child: Text(
-              card.message,
-              maxLines: compact ? 6 : 7,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: (compact ? 12.0 : 14.1) * scale,
-                height: 1.48,
-                color: const Color(0xFF142725),
-                fontWeight: compact ? FontWeight.w500 : FontWeight.w600,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Text(
+                card.message,
+                maxLines: dense ? (compact ? 5 : 6) : (compact ? 6 : 7),
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: (compact ? (dense ? 11.2 : 12.0) : (dense ? 12.7 : 14.1)) * scale,
+                  height: dense ? 1.42 : 1.48,
+                  color: const Color(0xFF142725),
+                  fontWeight: compact ? FontWeight.w500 : FontWeight.w600,
+                ),
               ),
             ),
           ),
@@ -707,10 +798,10 @@ class PostcardPreview extends StatelessWidget {
     );
   }
 
-  Widget _infoTile(String title, String value, double scale) {
+  Widget _infoTile(String title, String value, double scale, {bool compact = false}) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(14 * scale),
+      padding: EdgeInsets.all((compact ? 11 : 14) * scale),
       decoration: BoxDecoration(
         color: variant.textPanelColor,
         borderRadius: BorderRadius.circular(18 * scale),
@@ -721,22 +812,27 @@ class PostcardPreview extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 10 * scale,
+              fontSize: (compact ? 9.2 : 10) * scale,
               letterSpacing: 1.1,
               color: variant.accentColor,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const Spacer(),
-          Text(
-            value,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: const Color(0xFF173230),
-              fontWeight: FontWeight.w600,
-              height: 1.35,
-              fontSize: 12.5 * scale,
+          SizedBox(height: 6 * scale),
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                value,
+                maxLines: compact ? 2 : 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: const Color(0xFF173230),
+                  fontWeight: FontWeight.w600,
+                  height: compact ? 1.25 : 1.35,
+                  fontSize: (compact ? 11.0 : 12.5) * scale,
+                ),
+              ),
             ),
           ),
         ],

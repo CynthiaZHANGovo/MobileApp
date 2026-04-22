@@ -33,8 +33,39 @@ class StudioPage extends StatefulWidget {
 class _StudioPageState extends State<StudioPage> {
   _StudioTool? _activeTool;
   _SharePane _sharePane = _SharePane.caption;
+  double _panelDragOffset = 0;
 
   PostcardAppController get controller => widget.controller;
+
+  void _collapseToolPanel() {
+    if (_activeTool == null && _panelDragOffset == 0) return;
+    setState(() {
+      _activeTool = null;
+      _panelDragOffset = 0;
+    });
+    controller.clearStickerDeleteArm();
+  }
+
+  void _updatePanelDrag(double delta, double panelHeight) {
+    if (_activeTool == null) return;
+    setState(() {
+      _panelDragOffset = (_panelDragOffset + delta).clamp(0.0, panelHeight);
+    });
+  }
+
+  void _finishPanelDrag(double panelHeight, double velocity) {
+    if (_activeTool == null) return;
+    final shouldClose =
+        _panelDragOffset > panelHeight * 0.16 || velocity > 720;
+    if (shouldClose) {
+      _collapseToolPanel();
+      return;
+    }
+    if (_panelDragOffset == 0) return;
+    setState(() {
+      _panelDragOffset = 0;
+    });
+  }
 
   void _shiftTool(int delta) {
     final order = _StudioTool.values;
@@ -42,6 +73,7 @@ class _StudioPageState extends State<StudioPage> {
     final nextIndex = (order.indexOf(current) + delta).clamp(0, order.length - 1);
     setState(() {
       _activeTool = order[nextIndex];
+      _panelDragOffset = 0;
     });
   }
 
@@ -81,13 +113,16 @@ class _StudioPageState extends State<StudioPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final showPanel = _activeTool != null;
+        final shareOverlay = _activeTool == _StudioTool.share;
         final panelFactor = switch (_activeTool) {
           _StudioTool.share => 0.40,
           _StudioTool.template || _StudioTool.decor || null => 0.25,
         };
         final panelHeight = (constraints.maxHeight * panelFactor).clamp(160.0, 300.0);
         final dockHeight = 64.0;
-        final bottomInset = showPanel ? panelHeight + dockHeight + 18 : dockHeight + 18;
+        final bottomInset = showPanel && !shareOverlay
+            ? panelHeight + dockHeight + 18
+            : dockHeight + 18;
 
         return Stack(
           children: [
@@ -104,7 +139,7 @@ class _StudioPageState extends State<StudioPage> {
                         child: AnimatedScale(
                           duration: const Duration(milliseconds: 260),
                           curve: Curves.easeOutCubic,
-                          scale: showPanel ? 0.87 : 1.0,
+                          scale: showPanel && !shareOverlay ? 0.87 : 1.0,
                           child: RepaintBoundary(
                             key: controller.previewBoundaryKey,
                             child: PostcardPreview(
@@ -136,11 +171,13 @@ class _StudioPageState extends State<StudioPage> {
               ),
             ),
             AnimatedPositioned(
-              duration: const Duration(milliseconds: 260),
+              duration: Duration(milliseconds: _panelDragOffset == 0 ? 260 : 0),
               curve: Curves.easeOutCubic,
               left: 18,
               right: 18,
-              bottom: showPanel ? dockHeight + 18 : -panelHeight,
+              bottom: showPanel
+                  ? dockHeight + 18 - _panelDragOffset
+                  : -panelHeight,
               height: panelHeight,
               child: IgnorePointer(
                 ignoring: !showPanel,
@@ -149,29 +186,56 @@ class _StudioPageState extends State<StudioPage> {
                   opacity: showPanel ? 1 : 0,
                   child: _panelShell(
                     accentMode: _activeTool == _StudioTool.share,
-                    child: GestureDetector(
-                      onHorizontalDragEnd: (details) {
-                        final velocity = details.primaryVelocity ?? 0;
-                        if (velocity.abs() < 180) return;
-                        _shiftTool(velocity < 0 ? 1 : -1);
-                      },
-                      onVerticalDragUpdate: (details) {
-                        if (details.primaryDelta != null && details.primaryDelta! > 8) {
-                          setState(() {
-                            _activeTool = null;
-                          });
-                          controller.clearStickerDeleteArm();
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(14),
-                        child: switch (_activeTool) {
-                          _StudioTool.template => _templatePanel(card),
-                          _StudioTool.decor => _decorPanel(),
-                          _StudioTool.share => _sharePanel(context, card, variant),
-                          null => const SizedBox.shrink(),
-                        },
-                      ),
+                    child: Column(
+                      children: [
+                        GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onTap: _collapseToolPanel,
+                          onVerticalDragUpdate: (details) {
+                            _updatePanelDrag(details.primaryDelta ?? 0, panelHeight);
+                          },
+                          onVerticalDragEnd: (details) {
+                            _finishPanelDrag(
+                              panelHeight,
+                              details.primaryVelocity ?? 0,
+                            );
+                          },
+                          onVerticalDragCancel: () {
+                            _finishPanelDrag(panelHeight, 0);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
+                            child: Center(
+                              child: Container(
+                                width: 42,
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF6D817B).withValues(alpha: 0.55),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onHorizontalDragEnd: (details) {
+                              final velocity = details.primaryVelocity ?? 0;
+                              if (velocity.abs() < 180) return;
+                              _shiftTool(velocity < 0 ? 1 : -1);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(14, 4, 14, 14),
+                              child: switch (_activeTool) {
+                                _StudioTool.template => _templatePanel(card),
+                                _StudioTool.decor => _decorPanel(),
+                                _StudioTool.share => _sharePanel(context, card, variant),
+                                null => const SizedBox.shrink(),
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -193,12 +257,7 @@ class _StudioPageState extends State<StudioPage> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        if (_activeTool != null) {
-          setState(() {
-            _activeTool = null;
-          });
-          controller.clearSelections();
-        }
+        _collapseToolPanel();
       },
       child: Row(
         children: [
@@ -272,6 +331,7 @@ class _StudioPageState extends State<StudioPage> {
                     onTap: () {
                       setState(() {
                         _activeTool = selected ? null : item.$1;
+                        _panelDragOffset = 0;
                       });
                     },
                     child: AnimatedContainer(
@@ -449,35 +509,32 @@ class _StudioPageState extends State<StudioPage> {
           if (_sharePane == _SharePane.caption) ...[
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: const Color(0xFFF8F3E6),
                 borderRadius: BorderRadius.circular(22),
               ),
               child: Text(
                 controller.selectedSocialCaption,
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: Color(0xFF183231),
-                  height: 1.55,
+                  fontSize: 12.5,
+                  height: 1.32,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final stacked = constraints.maxWidth < 310;
+                final buttons = [
+                  OutlinedButton.icon(
                     onPressed: controller.nextCaption,
                     icon: const Icon(Icons.refresh_rounded),
                     label: const Text('Change'),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton.icon(
+                  OutlinedButton.icon(
                     onPressed: () async {
                       await Clipboard.setData(
                         ClipboardData(text: controller.selectedSocialCaption),
@@ -491,8 +548,24 @@ class _StudioPageState extends State<StudioPage> {
                     icon: const Icon(Icons.content_copy_outlined),
                     label: const Text('Copy'),
                   ),
-                ),
-              ],
+                ];
+                if (stacked) {
+                  return Column(
+                    children: [
+                      SizedBox(width: double.infinity, child: buttons[0]),
+                      const SizedBox(height: 10),
+                      SizedBox(width: double.infinity, child: buttons[1]),
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(child: buttons[0]),
+                    const SizedBox(width: 10),
+                    Expanded(child: buttons[1]),
+                  ],
+                );
+              },
             ),
           ] else ...[
             FilledButton(
@@ -519,63 +592,75 @@ class _StudioPageState extends State<StudioPage> {
               child: Text(controller.isExporting ? 'Saving...' : 'Save to Album'),
             ),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: controller.isExporting
-                        ? null
-                        : () async {
-                            final renderedPath = await _renderPostcardToFile(card, variant);
-                            if (!context.mounted) return;
-                            if (renderedPath == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Could not render postcard image. Please try again.',
-                                  ),
-                                ),
-                              );
-                              return;
-                            }
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final stacked = constraints.maxWidth < 320;
+                final exportButton = OutlinedButton.icon(
+                  onPressed: controller.isExporting
+                      ? null
+                      : () async {
+                          final renderedPath = await _renderPostcardToFile(card, variant);
+                          if (!context.mounted) return;
+                          if (renderedPath == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Postcard image saved to $renderedPath')),
-                            );
-                          },
-                    icon: const Icon(Icons.download_outlined),
-                    label: Text(controller.isExporting ? 'Rendering...' : 'Export PNG'),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: controller.isExporting
-                        ? null
-                        : () async {
-                            final renderedPath = await _renderPostcardToFile(card, variant);
-                            if (!context.mounted) return;
-                            if (renderedPath == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Could not render postcard image. Please try again.',
-                                  ),
+                              const SnackBar(
+                                content: Text(
+                                  'Could not render postcard image. Please try again.',
                                 ),
-                              );
-                              return;
-                            }
-                            final message = await controller.shareRenderedPostcard(renderedPath);
-                            if (context.mounted && message != null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(message)),
-                              );
-                            }
-                          },
-                    icon: const Icon(Icons.share_outlined),
-                    label: Text(controller.isExporting ? 'Rendering...' : 'Send'),
-                  ),
-                ),
-              ],
+                              ),
+                            );
+                            return;
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Postcard image saved to $renderedPath')),
+                          );
+                        },
+                  icon: const Icon(Icons.download_outlined),
+                  label: Text(controller.isExporting ? 'Rendering...' : 'Export PNG'),
+                );
+                final sendButton = OutlinedButton.icon(
+                  onPressed: controller.isExporting
+                      ? null
+                      : () async {
+                          final renderedPath = await _renderPostcardToFile(card, variant);
+                          if (!context.mounted) return;
+                          if (renderedPath == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Could not render postcard image. Please try again.',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+                          final message = await controller.shareRenderedPostcard(renderedPath);
+                          if (context.mounted && message != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(message)),
+                            );
+                          }
+                        },
+                  icon: const Icon(Icons.share_outlined),
+                  label: Text(controller.isExporting ? 'Rendering...' : 'Send'),
+                );
+                if (stacked) {
+                  return Column(
+                    children: [
+                      SizedBox(width: double.infinity, child: exportButton),
+                      const SizedBox(height: 10),
+                      SizedBox(width: double.infinity, child: sendButton),
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(child: exportButton),
+                    const SizedBox(width: 10),
+                    Expanded(child: sendButton),
+                  ],
+                );
+              },
             ),
           ],
         ],
