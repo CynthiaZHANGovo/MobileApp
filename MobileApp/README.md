@@ -1,6 +1,6 @@
-# environmental_postcard
+# envpostcard_everyday
 
-Environmental postcard generator
+A new Flutter project.
 
 ## Getting Started
 

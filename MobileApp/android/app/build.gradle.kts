@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.environmental_postcard"
+    namespace = "com.example.envpostcard_everyday"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,10 +21,10 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.environmental_postcard"
+        applicationId = "com.example.envpostcard_everyday"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 21 // Explicitly set to a reasonable minimum SDK version
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

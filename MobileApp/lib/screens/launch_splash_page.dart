@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 double _safeUnit(double value) {
   if (!value.isFinite || value.isNaN) return 0;
@@ -23,7 +24,7 @@ class _LaunchSplashPageState extends State<LaunchSplashPage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 3000),
+    duration: const Duration(milliseconds: 3600),
   )..forward();
 
   Timer? _finishTimer;
@@ -31,7 +32,7 @@ class _LaunchSplashPageState extends State<LaunchSplashPage>
   @override
   void initState() {
     super.initState();
-    _finishTimer = Timer(const Duration(milliseconds: 3500), () {
+    _finishTimer = Timer(const Duration(milliseconds: 4200), () {
       if (mounted) {
         widget.onFinished();
       }
@@ -74,6 +75,9 @@ class _LaunchSplashPageState extends State<LaunchSplashPage>
             );
             final decorateOpacity = _safeUnit(
               Curves.easeOutBack.transform(((progress - 0.66) / 0.34).clamp(0, 1)),
+            );
+            final titleProgress = _safeUnit(
+              Curves.easeInOut.transform(((progress - 0.50) / 0.30).clamp(0, 1)),
             );
 
             return Center(
@@ -167,7 +171,7 @@ class _LaunchSplashPageState extends State<LaunchSplashPage>
                     ),
                     Center(
                       child: Transform.translate(
-                        offset: Offset(0, (1 - progress) * 58),
+                        offset: Offset(0, (1 - progress) * 46),
                         child: Transform.rotate(
                           angle: -0.04,
                           child: Transform.scale(
@@ -211,6 +215,14 @@ class _LaunchSplashPageState extends State<LaunchSplashPage>
                         ),
                       ),
                     ),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 86,
+                      child: Center(
+                        child: _HandwrittenTitle(progress: titleProgress),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -221,6 +233,127 @@ class _LaunchSplashPageState extends State<LaunchSplashPage>
     );
   }
 
+}
+
+class _HandwrittenTitle extends StatelessWidget {
+  const _HandwrittenTitle({required this.progress});
+
+  final double progress;
+
+  @override
+  Widget build(BuildContext context) {
+    const lineWidth = 280.0;
+    final lineOneProgress = _safeUnit((progress / 0.48).clamp(0, 1));
+    final lineTwoProgress = _safeUnit(((progress - 0.44) / 0.56).clamp(0, 1));
+    final inkColor = const Color(0xFF58706C).withValues(
+      alpha: 0.22 + progress * 0.70,
+    );
+
+    return SizedBox(
+      width: lineWidth,
+      height: 118,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _HandwrittenLine(
+            text: 'Dear',
+            progress: lineOneProgress,
+            width: lineWidth * 0.55,
+            inkColor: inkColor,
+            penTop: 18,
+          ),
+          const SizedBox(height: 4),
+          _HandwrittenLine(
+            text: 'Environment',
+            progress: lineTwoProgress,
+            width: lineWidth,
+            inkColor: inkColor,
+            penTop: 18,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HandwrittenLine extends StatelessWidget {
+  const _HandwrittenLine({
+    required this.text,
+    required this.progress,
+    required this.width,
+    required this.inkColor,
+    required this.penTop,
+  });
+
+  final String text;
+  final double progress;
+  final double width;
+  final Color inkColor;
+  final double penTop;
+
+  @override
+  Widget build(BuildContext context) {
+    final penX = (width * progress).clamp(0.0, width);
+
+    return SizedBox(
+      width: width,
+      height: 50,
+      child: Stack(
+        alignment: Alignment.centerLeft,
+        children: [
+          ClipRect(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              widthFactor: progress,
+              child: Text(
+                text,
+                maxLines: 1,
+                style: GoogleFonts.italianno(
+                  fontSize: 58,
+                  color: inkColor,
+                  fontWeight: FontWeight.w400,
+                  height: 1,
+                  shadows: [
+                    Shadow(
+                      color: const Color(0x24B57A2B).withValues(
+                        alpha: 0.08 + (progress * 0.12),
+                      ),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (progress > 0 && progress < 0.995)
+            Positioned(
+              left: penX - 6,
+              top: penTop - 2,
+              child: Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFB57A2B).withValues(
+                    alpha: 0.28 + (1 - progress) * 0.30,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0x22B57A2B).withValues(
+                        alpha: 0.18 + (1 - progress) * 0.18,
+                      ),
+                      blurRadius: 12,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class _SplashPostcard extends StatelessWidget {
@@ -253,13 +386,6 @@ class _SplashPostcard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: List.generate(12, (index) {
-              final color = index.isEven ? const Color(0xFFD65C54) : const Color(0xFF5A92B7);
-              return Expanded(child: Container(height: 5, color: color));
-            }),
-          ),
-          const SizedBox(height: 16),
           Container(
             height: 188,
             decoration: BoxDecoration(
@@ -395,6 +521,13 @@ class _SplashPostcard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: List.generate(12, (index) {
+              final color = index.isEven ? const Color(0xFFD65C54) : const Color(0xFF5A92B7);
+              return Expanded(child: Container(height: 5, color: color));
+            }),
           ),
           const SizedBox(height: 16),
           const _NoteLine(widthFactor: 0.86),

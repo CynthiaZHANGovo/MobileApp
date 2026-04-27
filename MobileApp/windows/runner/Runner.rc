@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "environmental_postcard" "\0"
+            VALUE "FileDescription", "envpostcard_everyday" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "environmental_postcard" "\0"
+            VALUE "InternalName", "envpostcard_everyday" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "environmental_postcard.exe" "\0"
-            VALUE "ProductName", "environmental_postcard" "\0"
+            VALUE "OriginalFilename", "envpostcard_everyday.exe" "\0"
+            VALUE "ProductName", "envpostcard_everyday" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
