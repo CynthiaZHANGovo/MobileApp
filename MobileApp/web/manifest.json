@@ -1,11 +1,11 @@
 {
-    "name": "envpostcard_everyday",
-    "short_name": "envpostcard_everyday",
+    "name": "environmental_postcard",
+    "short_name": "environmental_postcard",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Environmental postcard generator",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
