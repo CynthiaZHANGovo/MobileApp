@@ -4,11 +4,17 @@
 
 **A mobile app that turns everyday environmental moments into tiny digital postcards.**
 
-> Notice the sky.
-> Capture the moment.
+> Notice the sky.\
+> Capture the moment.\
 > Let the environment write back.
 
 <img src="https://github.com/CynthiaZHANGovo/MobileApp/blob/main/Pictures/Hero_Image.png" width="600">
+
+---
+
+## 📦 Download
+
+[Download APK](https://github.com/CynthiaZHANGovo/MobileApp/releases/tag/v2.0)
 
 ---
 
@@ -257,7 +263,7 @@ flutter run
 
 ### Optional LLM Endpoint
 
-The app originally used a personal remote LLM for text generation, but due to cost ;( , the release version defaults to a lightweight local generator.\
+The app originally used a personal remote LLM for text generation, but due to cost ;( , the release version defaults to a lightweight local generator.
 
 Developers can optionally provide their own endpoint:
 
