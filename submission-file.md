@@ -8,7 +8,7 @@ Date: 28 April 2026
 ## Link to GitHub Repository
 
 Flutter Application Name - Dear Environment  
-GitHub Repository - https://github.com/CynthiaZHANGovo/MobileApp
+GitHub Repository - [https://github.com/CynthiaZHANGovo/MobileApp](https://github.com/CynthiaZHANGovo/MobileApp)
 
 ---
 
