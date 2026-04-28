@@ -1,0 +1,583 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dear Environment</title>
+  <style>
+    :root {
+      --green: #1e5751;
+      --deep: #183433;
+      --cream: #f3e9d2;
+      --paper: #fff8ec;
+      --sage: #dce4da;
+      --amber: #e4c668;
+      --coral: #cc8c5a;
+      --muted: #637974;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--deep);
+      background:
+        radial-gradient(circle at top left, rgba(228,198,104,0.35), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(204,140,90,0.22), transparent 30%),
+        linear-gradient(180deg, #f8efd9 0%, #e7e3d8 48%, #dce4da 100%);
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .wrap {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    nav {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 800;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+    }
+
+    .dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 16px 0 0 var(--coral), 32px 0 0 var(--amber);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 44px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.56);
+      border: 1px solid rgba(24,52,51,0.12);
+      font-weight: 800;
+    }
+
+    .pill.primary {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+    }
+
+    .pill.muted {
+      background: rgba(255,255,255,0.55);
+      color: var(--muted);
+      cursor: default;
+    }
+
+    .hero {
+      min-height: calc(100vh - 72px);
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 42px;
+      align-items: center;
+      padding: 28px 0 70px;
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.58);
+      border: 1px solid rgba(24,52,51,0.12);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--green);
+    }
+
+    h1 {
+      margin: 18px 0;
+      font-size: clamp(56px, 8vw, 104px);
+      line-height: 0.9;
+      letter-spacing: -0.06em;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    p {
+      color: #3f5854;
+      line-height: 1.7;
+    }
+
+    .tagline {
+      max-width: 560px;
+      font-size: 21px;
+      line-height: 1.55;
+      color: #34504c;
+      margin-bottom: 26px;
+    }
+
+    .hero-card {
+      padding: 14px;
+      border-radius: 34px;
+      background: rgba(255,255,255,0.46);
+      border: 1px solid rgba(255,255,255,0.75);
+      box-shadow: 0 28px 80px rgba(24,52,51,0.18);
+    }
+
+    .hero-card img {
+      border-radius: 26px;
+    }
+
+    .mini-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.72);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      color: var(--green);
+    }
+
+    .section {
+      padding: 76px 0;
+    }
+
+    .section-title {
+      max-width: 720px;
+      margin-bottom: 28px;
+    }
+
+    .screens {
+      display: flex;
+      gap: 18px;
+      overflow-x: auto;
+      padding: 8px 2px 18px;
+    }
+
+    .phone {
+      flex: 0 0 190px;
+      padding: 10px;
+      border-radius: 28px;
+      background: rgba(255,255,255,0.68);
+      border: 1px solid rgba(255,255,255,0.78);
+      box-shadow: 0 18px 42px rgba(24,52,51,0.12);
+    }
+
+    .phone img {
+      border-radius: 20px;
+    }
+
+    .phone span {
+      display: block;
+      text-align: center;
+      padding-top: 11px;
+      font-weight: 900;
+      color: var(--green);
+    }
+
+    .feature-grid,
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .platform-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .feature,
+    .platform-card {
+      min-height: 180px;
+      padding: 22px;
+      border-radius: 26px;
+      background: rgba(255,250,240,0.72);
+      border: 1px solid rgba(255,255,255,0.75);
+      box-shadow: 0 16px 42px rgba(24,52,51,0.08);
+    }
+
+    .platform-card {
+      padding: 26px;
+      border-radius: 28px;
+    }
+
+    .platform-card.active {
+      background: linear-gradient(180deg, rgba(255,250,240,0.9), rgba(220,228,218,0.72));
+    }
+
+    .platform-card.disabled {
+      opacity: 0.68;
+    }
+
+    .icon,
+    .platform-icon {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      border-radius: 18px;
+      background: rgba(30,87,81,0.1);
+      color: var(--green);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .studio {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 26px;
+      align-items: center;
+      padding: 26px;
+      border-radius: 34px;
+      background: rgba(255,250,240,0.66);
+      border: 1px solid rgba(255,255,255,0.75);
+    }
+
+    .studio img {
+      border-radius: 28px;
+      box-shadow: 0 18px 50px rgba(24,52,51,0.14);
+    }
+
+    .checklist {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .check {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.58);
+      font-weight: 800;
+    }
+
+    .download {
+      text-align: center;
+      padding: 78px 24px;
+      border-radius: 38px;
+      background: linear-gradient(135deg, rgba(30,87,81,0.96), rgba(43,93,87,0.86));
+      color: white;
+      box-shadow: 0 26px 70px rgba(24,52,51,0.22);
+    }
+
+    .download p {
+      color: rgba(255,255,255,0.82);
+      max-width: 620px;
+      margin: 0 auto 28px;
+    }
+
+    .download .pill {
+      background: white;
+      color: var(--green);
+      border: 0;
+    }
+
+    footer {
+      padding: 36px 0 46px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .studio {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .platform-grid,
+      .mini-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-actions .pill:not(.primary) {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <nav>
+      <div class="logo">
+        <span class="dot"></span>
+        <span>Dear Environment</span>
+      </div>
+      <div class="nav-actions">
+        <a class="pill" href="https://github.com/CynthiaZHANGovo/MobileApp">GitHub</a>
+        <a class="pill primary" href="https://github.com/CynthiaZHANGovo/MobileApp/releases/tag/v2.0">Download APK</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div>
+        <span class="badge">Flutter mobile app</span>
+        <h1>Make a postcard from the world around you.</h1>
+        <p class="tagline">
+          Capture a moment, gather live weather and air quality, then turn it into an editable environmental postcard.
+        </p>
+        <div class="nav-actions">
+          <a class="pill primary" href="https://github.com/CynthiaZHANGovo/MobileApp/releases/tag/v2.0">Download Android APK</a>
+          <a class="pill" href="#screens">See Screens</a>
+        </div>
+
+        <div class="mini-stats">
+          <div class="stat">
+            <strong>GPS</strong>
+            location context
+          </div>
+          <div class="stat">
+            <strong>AQI</strong>
+            air quality data
+          </div>
+          <div class="stat">
+            <strong>Studio</strong>
+            editable output
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <img src="../Pictures/Hero_Image.png" alt="Dear Environment app hero image">
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>Choose your version.</h2>
+        <p>
+          Dear Environment is currently available as an Android APK for academic demonstration and testing.
+          Web and iOS versions are planned as future improvements.
+        </p>
+      </div>
+
+      <div class="platform-grid">
+        <div class="platform-card active">
+          <div class="platform-icon">APK</div>
+          <h3>Android</h3>
+          <p>Download the APK release and test the mobile app on an Android device.</p>
+          <a class="pill primary" href="https://github.com/CynthiaZHANGovo/MobileApp/releases/tag/v2.0">
+            Download APK
+          </a>
+        </div>
+
+        <div class="platform-card disabled">
+          <div class="platform-icon">WEB</div>
+          <h3>Web</h3>
+          <p>A browser-based version is planned for future development.</p>
+          <span class="pill muted">Coming Soon</span>
+        </div>
+
+        <div class="platform-card disabled">
+          <div class="platform-icon">iOS</div>
+          <h3>iOS</h3>
+          <p>iOS deployment and testing are planned as a future improvement.</p>
+          <span class="pill muted">Coming Soon</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="screens">
+      <div class="section-title">
+        <h2>A tiny creative studio for environmental moments.</h2>
+        <p>
+          The app generates context, captions, styles, and decorative elements. You decide how the final postcard looks.
+        </p>
+      </div>
+
+      <div class="screens">
+        <div class="phone">
+          <img src="../Pictures/splash.png" alt="Splash screen">
+          <span>Splash</span>
+        </div>
+        <div class="phone">
+          <img src="../Pictures/capture.png" alt="Capture screen">
+          <span>Capture</span>
+        </div>
+        <div class="phone">
+          <img src="../Pictures/generate.png" alt="Generate screen">
+          <span>Generate</span>
+        </div>
+        <div class="phone">
+          <img src="../Pictures/template.png" alt="Template screen">
+          <span>Template</span>
+        </div>
+        <div class="phone">
+          <img src="../Pictures/decor.png" alt="Decor screen">
+          <span>Decor</span>
+        </div>
+        <div class="phone">
+          <img src="../Pictures/share.png" alt="Share screen">
+          <span>Share</span>
+        </div>
+        <div class="phone">
+          <img src="../Pictures/album.png" alt="Album screen">
+          <span>Album</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="icon">01</div>
+          <h3>Capture</h3>
+          <p>Take a photo or select an image from the gallery to start a postcard.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">02</div>
+          <h3>Sense</h3>
+          <p>Use GPS, weather, air quality, time, and location to describe the moment.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">03</div>
+          <h3>Generate</h3>
+          <p>Create postcard text, social captions, style options, and contextual decorations.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">04</div>
+          <h3>Keep</h3>
+          <p>Export, share, or save the finished postcard into a local Album.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="studio">
+        <div>
+          <h2>Not just generated. Personalised.</h2>
+          <p>
+            Dear Environment is built around interaction. The generated data becomes editable material:
+            templates, stickers, captions, image position, and final sharing choices.
+          </p>
+
+          <div class="checklist">
+            <div class="check">Switch visual templates</div>
+            <div class="check">Add, drag, scale, and delete stickers</div>
+            <div class="check">Move and scale the photo</div>
+            <div class="check">Change or copy generated captions</div>
+            <div class="check">Export PNG or share through the native share sheet</div>
+          </div>
+        </div>
+
+        <img src="../Pictures/studio.png" alt="Studio editing screen">
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>Built for Connected Environments.</h2>
+        <p>
+          The project links the user, phone sensors, external environmental APIs, and creative interaction.
+          Environmental data becomes something visible, editable, and memorable.
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature">
+          <h3>Device</h3>
+          <p>Camera, GPS, touch gestures, gallery access, local storage, and native sharing.</p>
+        </div>
+        <div class="feature">
+          <h3>APIs</h3>
+          <p>Open-Meteo weather, Open-Meteo air quality, reverse geocoding, and optional LLM endpoint.</p>
+        </div>
+        <div class="feature">
+          <h3>Output</h3>
+          <p>Rendered PNG postcards, generated captions, and saved local Album entries.</p>
+        </div>
+        <div class="feature">
+          <h3>Testing</h3>
+          <p>Passed flutter analyze and flutter test, with manual testing across the main app flow.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="download">
+        <h2>Try the Android demo.</h2>
+        <p>
+          Dear Environment is distributed as an Android APK for academic demonstration and testing.
+          Web and iOS versions are listed as planned future versions.
+        </p>
+        <a class="pill" href="https://github.com/CynthiaZHANGovo/MobileApp/releases/tag/v2.0">
+          Download APK
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <div>
+        <strong>Dear Environment</strong><br>
+        CASA0015 Mobile Systems & Interactions
+      </div>
+      <div>
+        <a href="https://github.com/CynthiaZHANGovo">Xinyi Zhang</a>
+        ·
+        <a href="mailto:cynz1223@gmail.com">Contact</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
+```
