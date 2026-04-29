@@ -15,7 +15,6 @@
 ## 📦 Links
 
 - [Landing Page](https://cynthiazhangovo.github.io/MobileApp/)
-- [Demo Video](YOUR_DEMO_VIDEO_LINK_HERE)
 - [Download Android APK](https://github.com/CynthiaZHANGovo/MobileApp/releases/tag/v2.0)
 - [GitHub Repository](https://github.com/CynthiaZHANGovo/MobileApp)
 
